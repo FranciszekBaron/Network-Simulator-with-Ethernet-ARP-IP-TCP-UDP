@@ -1,0 +1,14 @@
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/bin/Debug/net9.0/EthernetProtocol
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/bin/Debug/net9.0/EthernetProtocol.deps.json
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/bin/Debug/net9.0/EthernetProtocol.runtimeconfig.json
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/bin/Debug/net9.0/EthernetProtocol.dll
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/bin/Debug/net9.0/EthernetProtocol.pdb
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/EthernetProtocol.GeneratedMSBuildEditorConfig.editorconfig
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/EthernetProtocol.AssemblyInfoInputs.cache
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/EthernetProtocol.AssemblyInfo.cs
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/EthernetProtocol.csproj.CoreCompileInputs.cache
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/EthernetProtocol.dll
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/refint/EthernetProtocol.dll
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/EthernetProtocol.pdb
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/EthernetProtocol.genruntimeconfig.cache
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/ref/EthernetProtocol.dll
