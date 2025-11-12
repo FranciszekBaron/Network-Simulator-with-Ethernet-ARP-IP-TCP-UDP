@@ -14,15 +14,14 @@ public class Program
         Network WAN3 = new Network("eth1");
         Network WAN4 = new Network("eth1");
 
-
         //Sender and Receiver
-        Host me = new Host("my computer", [11, 22, 33, 44, 55, 66], [192, 23, 1, 10]);
+        Host me = new Host("my computer", [11, 22, 33, 44, 55, 66], [192, 23, 1, 10],[255,255,255,0]);
 
-        Host myGirlfriend = new Host("Her computer", [12, 22, 33, 44, 55, 66], [192, 23, 1, 20]);
+        Host myGirlfriend = new Host("Her computer", [12, 22, 33, 44, 55, 66], [192, 23, 1, 20],[255,255,255,0]);
 
-        Host myFlatmate = new Host("His computer", [13, 24, 35, 46, 57, 68], [192, 23, 1, 34]);
+        Host myFlatmate = new Host("His computer", [13, 24, 35, 46, 57, 68], [192, 23, 1, 34],[255,255,255,0]);
 
-        Host target = new Host("Google", [88, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF], [8, 8, 8, 8]);
+        Host target = new Host("Google", [88, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF], [8, 8, 8, 8],[255,255,255,0]);
 
         // Router 1 
         byte[] router1MAC = new byte[] { 0xB3, 0x31, 0x11, 0x33, 0x33, 0x33 };
@@ -45,29 +44,28 @@ public class Program
         Router router4 = new Router("Google Router", router4MAC, router4IP);
 
 
+        LAN.ConnectDevice(me,me.Interface);
+        LAN.ConnectDevice(myGirlfriend,myGirlfriend.Interface);
+        LAN.ConnectDevice(myFlatmate,myFlatmate.Interface);
+        LAN.ConnectDevice(router1,router1.);
 
-        LAN.Connect(me);
-        LAN.Connect(myGirlfriend);
-        LAN.Connect(myFlatmate);
-        LAN.Connect(router1);
+        me.RoutingTable.AddRoute(new Route([192, 23, 0, 0], [255, 255, 0, 0], [192, 32, 1, 1], LAN)); //lokalna mała sieć 
+        me.RoutingTable.AddRoute(new Route([192, 23, 2, 0], [255, 255, 255, 0], null, LAN)); //lokalna mała sieć 
+        me.RoutingTable.SetDefaultGateway(router1.IpAdress, LAN);
+        me.RoutingTable.AddRoute(new Route(myFlatmate.IpAdress, myFlatmate.ConnectedNetwork[0].Netmask, null, LAN));
+        me.RoutingTable.AddRoute(new Route(myGirlfriend.IpAdress, myGirlfriend.ConnectedNetwork[0].Netmask, null, LAN));
 
-        me.routingTable.AddRoute(new Route([192, 23, 0, 0], [255, 255, 0, 0], [192, 32, 1, 1], LAN)); //lokalna mała sieć 
-        me.routingTable.AddRoute(new Route([192, 23, 2, 0], [255, 255, 255, 0], null, LAN)); //lokalna mała sieć 
-        me.routingTable.SetDefaultGateway(router1.IpAdress, LAN);
-        me.routingTable.AddRoute(new Route(myFlatmate.IpAdress, myFlatmate.ConnectedNetwork[0].Netmask, null, LAN));
-        me.routingTable.AddRoute(new Route(myGirlfriend.IpAdress, myGirlfriend.ConnectedNetwork[0].Netmask, null, LAN));
+        WAN1.ConnectDevice(router1);
+        WAN1.ConnectDevice(router2);
 
-        WAN1.Connect(router1);
-        WAN1.Connect(router2);
+        WAN2.ConnectDevice(router2);
+        WAN2.ConnectDevice(router3);
 
-        WAN2.Connect(router2);
-        WAN2.Connect(router3);
+        WAN3.ConnectDevice(router3);
+        WAN3.ConnectDevice(router4);
 
-        WAN3.Connect(router3);
-        WAN3.Connect(router4);
-
-        WAN4.Connect(router4);
-        WAN4.Connect(target);
+        WAN4.ConnectDevice(router4);
+        WAN4.ConnectDevice(target);
 
 
         

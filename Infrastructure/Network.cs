@@ -1,6 +1,8 @@
+using System.Net.NetworkInformation;
+
 public class Network
 {
-    public List<Host> hosts { get; set; }
+    public List<(Device device, NetworkInterface iface)> hosts { get; set; }
 
     public string Name { get; set; }
 
@@ -11,56 +13,72 @@ public class Network
         this.Name = name;
     }
 
-    public void Connect(Host host)
+    public void ConnectDevice(Device device,NetworkInterface iface)
     {
         if (hosts == null)
         {
-            hosts = new List<Host>();
+            hosts = new List<(Device,NetworkInterface)>();
         }
-        hosts.Add(host);
-        host.ConnectedNetwork.Add(this);
+        hosts.Add((device,iface));
+        device.ConnectedNetwork.Add(this);
     }
 
 
-    public void Broadcast(Host sender, EthernetFrame ethernetFrame)
+    public void Broadcast(Device sender, EthernetFrame ethernetFrame)
     {
         LoggingManager.PrintNormal("\n" + "Wykonuje Broadcast...." + "\n");
         LoggingManager.PrintFrameWithDetails(ethernetFrame);
-        foreach (var device in this.hosts)
+
+        string senderMAC = ConvertionManager.MACtoString(ethernetFrame.SourceMAC);
+
+        foreach (var (device,iface) in this.hosts)
         {
-            if (device != sender)
-            {
-                device.ReceiveFrame(ethernetFrame);
-            }
+            string ifaceMAC = ConvertionManager.MACtoString(iface.MacAdress);
+
+            // Nie wysyłaj do siebie samego
+            if (ifaceMAC == senderMAC)
+                continue;
+                
+            LoggingManager.PrintNormal($"  → Delivering to {device.Name} ({iface.Name})");
+            device.ReceiveFrame(ethernetFrame, iface);
         }
     }
 
 
     public void Unicast(EthernetFrame ethernetFrame)
     {
-        Host target = null;
+        Device target = null;
+        NetworkInterface upcomingInterface = null;
         LoggingManager.PrintFrameWithDetails(ethernetFrame);
 
 
         string targetMAC = ConvertionManager.MACtoString(ethernetFrame.DestinationMAC);
 
-        foreach (var device in hosts)
+        foreach (var (device, iface) in hosts)
         {
-            string deviceMAC = ConvertionManager.MACtoString(device.MacAdress);
+            string deviceMAC = ConvertionManager.MACtoString(iface.MacAdress);
             if (deviceMAC == targetMAC)
             {
                 target = device;
+                upcomingInterface = iface;
             }
         }
+
+
 
         if (target == null)
         {
             throw new Exception("Unknown Host Error");
         }
+        
+        if(upcomingInterface == null)
+        {
+            throw new Exception("Upcoming Interface Error");
+        }
 
 
         LoggingManager.PrintNormal("\n" + $"Wykonuje Unicast do {BitConverter.ToString(ethernetFrame.DestinationMAC).Replace("-", ":")}..." + "\n");
-        target.ReceiveFrame(ethernetFrame);
+        target.ReceiveFrame(ethernetFrame,upcomingInterface);
     }
 
     public override string ToString()

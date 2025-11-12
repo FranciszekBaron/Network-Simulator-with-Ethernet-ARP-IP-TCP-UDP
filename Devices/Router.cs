@@ -1,15 +1,21 @@
-public class Router : Host
+public class Router : Device
 {
-    public List<Network> interfaces { get; set; }
+    // public List<Network> interfaces { get; set; }
 
     public Dictionary<string, string> FIB;
 
-    public Router(string Name, byte[] MacAdress, byte[] IpAdress) : base(Name, MacAdress, IpAdress)
+    public int MyProperty { get; set; }
+
+    public List<NetworkInterface> interfaces { get; set; }
+
+    
+
+    public Router(string Name, byte[] MacAdress, byte[] IpAdress) : base(Name)
     {
 
     }
 
-    protected override void HandleIP(byte[] payload)
+    protected override void HandleIP(byte[] payload,NetworkInterface networkInterface)
     {
         //Deserialize packet
         IPPacket packet = IPPacket.Deserialize(payload);
@@ -24,38 +30,18 @@ public class Router : Host
         }
         packet.TTL--;
 
-
+        // byte[] nextHop = routingTable.GetNextHop(packet.DestinationIP);
 
 
     }
 
-    public override void ReceiveFrame(EthernetFrame ethernetFrame)
+    public override void ReceiveFrame(EthernetFrame frame,NetworkInterface networkInterface)
     {
-
-        //Czy moj MAC??
-
-        if (!IsItMyMAC(ethernetFrame.DestinationMAC) && !IsBroadcast(ethernetFrame.DestinationMAC))
-        {
-            LoggingManager.PrintWarning($"Given MAC ({ethernetFrame.DestinationMAC}) not in local network, not a Broadcast either");
-            return;
-        }
-
-        //Jaki EthernetType - taka operacja
-
-        if (ethernetFrame.EtherType == NetworkConstants.ETHERTYPE_ARP)
-        {
-            HandleARP(ethernetFrame.Payload);
-        }
-        else if (ethernetFrame.EtherType == NetworkConstants.ETHERTYPE_IP)
-        {
-            HandleIP(ethernetFrame.Payload);
-        }
-        else
-        {
-            LoggingManager.PrintWarning("No such EtherType available");
-        }
-
+        throw new NotImplementedException();
     }
 
-    
+    protected override void HandleARP(byte[] payload,NetworkInterface networkInterface)
+    {
+        throw new NotImplementedException();
+    }
 }

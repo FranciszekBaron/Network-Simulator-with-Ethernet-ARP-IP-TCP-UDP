@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EthernetProtocol")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fe8412a3d3e47c26f43665c6b9611a0e40f8d9a0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ad42a21af3581e30f165f48ada9b2131f6d735a7")]
 [assembly: System.Reflection.AssemblyProductAttribute("EthernetProtocol")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EthernetProtocol")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

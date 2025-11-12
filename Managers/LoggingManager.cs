@@ -53,4 +53,12 @@ public class LoggingManager
         Console.WriteLine(toPrint);
         Console.ResetColor();
     }
+
+    public static void PrintDevice(string toPrint)
+    {
+        Console.ForegroundColor = ConsoleColor.DarkYellow;
+        Console.Write("[Device] ");
+        Console.WriteLine(toPrint + "\n");
+        Console.ResetColor();
+    }
 }
