@@ -2,9 +2,14 @@ public class Network
 {
     public List<Host> hosts { get; set; }
 
+    public string Name { get; set; }
+
     public byte[] Netmask = { 255, 255, 255, 0 };
 
-    public Network(){}
+    public Network(string name)
+    {
+        this.Name = name;
+    }
 
     public void Connect(Host host)
     {
@@ -29,7 +34,7 @@ public class Network
             }
         }
     }
-    
+
 
     public void Unicast(EthernetFrame ethernetFrame)
     {
@@ -54,7 +59,12 @@ public class Network
         }
 
 
-        LoggingManager.PrintNormal("\n" + $"Wykonuje Unicast do {BitConverter.ToString(ethernetFrame.DestinationMAC).Replace("-",":")}..." + "\n");
+        LoggingManager.PrintNormal("\n" + $"Wykonuje Unicast do {BitConverter.ToString(ethernetFrame.DestinationMAC).Replace("-", ":")}..." + "\n");
         target.ReceiveFrame(ethernetFrame);
+    }
+
+    public override string ToString()
+    {
+        return Name;
     }
 }

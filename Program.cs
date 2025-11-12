@@ -8,11 +8,11 @@ public class Program
 
 
         //Sieć
-        Network LAN = new Network();
-        Network WAN1 = new Network();
-        Network WAN2 = new Network();
-        Network WAN3 = new Network();
-        Network WAN4 = new Network();
+        Network LAN = new Network("l0");
+        Network WAN1 = new Network("eth1");
+        Network WAN2 = new Network("eth1");
+        Network WAN3 = new Network("eth1");
+        Network WAN4 = new Network("eth1");
 
 
         //Sender and Receiver
@@ -70,7 +70,9 @@ public class Program
         WAN4.Connect(target);
 
 
-        Console.WriteLine(ConvertionManager.MACtoString(me.MacAdress));
+        
+
+
         me.SendPacket(target.IpAdress,[255]);
 
 

@@ -46,9 +46,18 @@ public class RoutingTable
             return bestMatch.Gateaway;
         }
     }
-    
+
     public void AddRoute(Route route)
     {
         routes.Add(route);
+    }
+
+    public override string ToString()
+    {
+        var header = string.Format("{0,-16}{1,-16}{2,-16}{3,-10}",
+            "Destination", "Netmask", "Gateway", "Interface");
+
+        var rows = string.Join("\n", routes.Select(r => r.ToString()));
+        return $"{header}\n{rows}";
     }
 }

@@ -12,3 +12,4 @@
 /Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/EthernetProtocol.pdb
 /Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/EthernetProtocol.genruntimeconfig.cache
 /Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/ref/EthernetProtocol.dll
+/Users/franekbaron/Desktop/Projekty/EthernetProtocol/obj/Debug/net9.0/EthernetProtocol.sourcelink.json

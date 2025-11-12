@@ -12,7 +12,6 @@ public class AdressResolutionProtocol : IProtocol<AdressResolutionProtocol>
     public byte[] TargetMACAdress { get; set; } // 6bajtow 
     public byte[] TargetIPAdress { get; set; } // 4bajty
 
-
     public AdressResolutionProtocol(ushort opcode, byte[] sendeMacAdress, byte[] senderIPAdress, byte[] targetMacAdress, byte[] targetIPAdress)
     {
         Opcode = opcode;

@@ -7,10 +7,10 @@ public class Route
 
     public Route(byte[] Destination, byte[] Netmask, byte[] Gateaway, Network Interface)
     {
-        this.Destination = Destination;
-        this.Gateaway = Gateaway;
-        this.Netmask = Netmask;
-        this.Interface = Interface;
+        this.Destination = Destination ?? new byte[] { 0, 0, 0, 0 };
+        this.Netmask = Netmask ?? new byte[] { 0, 0, 0, 0 };
+        this.Gateaway = Gateaway ?? new byte[] { 0, 0, 0, 0 };
+        this.Interface = Interface ?? throw new ArgumentNullException(nameof(Interface));
     }
 
 
@@ -29,7 +29,7 @@ public class Route
         //są w tej samej sieci
         return true;
     }
-    
+
 
     public byte CountPrefix()
     {
@@ -37,10 +37,10 @@ public class Route
         for (int i = 0; i < 4; i++)
         {
             byte current = Netmask[i];
-            
-            for(int bit = 7; bit > 0; bit--)
+
+            for (int bit = 7; bit > 0; bit--)
             {
-                if((current & (1<<bit)) != 0)
+                if ((current & (1 << bit)) != 0)
                 {
                     count++;
                 }
@@ -51,5 +51,14 @@ public class Route
             }
         }
         return count;
+    }
+
+    public override string ToString()
+    {
+        return string.Format("{0,-16}{1,-16}{2,-16}{3,-10}",
+            ConvertionManager.IPtoString(Destination),
+            ConvertionManager.IPtoString(Netmask),
+            ConvertionManager.IPtoString(Gateaway),
+            Interface?.ToString() ?? "null");
     }
 }

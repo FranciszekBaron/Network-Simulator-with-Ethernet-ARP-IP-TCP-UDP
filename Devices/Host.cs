@@ -34,6 +34,11 @@ public class Host
     
     public virtual void SendPacket(byte[] IPAdrress,byte[] data)
     {
+
+        LoggingManager.PrintNormal("========= HOST A Routing Table =========");
+        LoggingManager.PrintNormal(routingTable.ToString());
+        LoggingManager.PrintNormal("========================================");
+
         byte[] nextHop = routingTable.GetNextHop(IPAdrress);
 
         byte[] nextHopMAC;
@@ -74,8 +79,8 @@ public class Host
 
         LoggingManager.PrintNormal($"[{Name}] Created Ethernet Frame: {ConvertionManager.MACtoString(ethernetFrame.SourceMAC)} → {ConvertionManager.MACtoString(ethernetFrame.DestinationMAC)}");
 
-        LoggingManager.PrintPositive("Packet send");
         SendFrame(ethernetFrame, ConnectedNetwork[0]);
+        LoggingManager.PrintPositive("Packet send");
 
     }
 
@@ -141,6 +146,7 @@ public class Host
     protected virtual void HandleARP(byte[] payload)
     {
 
+        //Deserialize packet
         AdressResolutionProtocol arpRequest = AdressResolutionProtocol.Deserialize(payload);
 
         string targetIP = ConvertionManager.IPtoString(arpRequest.TargetIPAdress);
