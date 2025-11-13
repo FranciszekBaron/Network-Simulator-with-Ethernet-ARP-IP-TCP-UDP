@@ -2,7 +2,7 @@ using System.Net.NetworkInformation;
 
 public class Network
 {
-    public List<(Device device, NetworkInterface iface)> hosts { get; set; }
+    public List<(Device device, NetworkInterface iface)> ConnectedDevices { get; set; }
 
     public string Name { get; set; }
 
@@ -15,11 +15,11 @@ public class Network
 
     public void ConnectDevice(Device device,NetworkInterface iface)
     {
-        if (hosts == null)
+        if (ConnectedDevices == null)
         {
-            hosts = new List<(Device,NetworkInterface)>();
+            ConnectedDevices = new List<(Device,NetworkInterface)>();
         }
-        hosts.Add((device,iface));
+        ConnectedDevices.Add((device,iface));
         device.ConnectedNetwork.Add(this);
     }
 
@@ -31,7 +31,7 @@ public class Network
 
         string senderMAC = ConvertionManager.MACtoString(ethernetFrame.SourceMAC);
 
-        foreach (var (device,iface) in this.hosts)
+        foreach (var (device,iface) in ConnectedDevices)
         {
             string ifaceMAC = ConvertionManager.MACtoString(iface.MacAdress);
 
@@ -54,7 +54,7 @@ public class Network
 
         string targetMAC = ConvertionManager.MACtoString(ethernetFrame.DestinationMAC);
 
-        foreach (var (device, iface) in hosts)
+        foreach (var (device, iface) in ConnectedDevices)
         {
             string deviceMAC = ConvertionManager.MACtoString(iface.MacAdress);
             if (deviceMAC == targetMAC)

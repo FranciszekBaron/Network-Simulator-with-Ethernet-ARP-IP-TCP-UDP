@@ -8,9 +8,7 @@ public class Host : Device
     
     public NetworkInterface Interface { get; set; } // Host ma jeden MAC i IP 
 
-    //ARP CACHE 
     public Dictionary<string,byte[]> arpCache { get; set; }
-
 
     public Host(string name,byte[] MacAdress, byte[] IpAdress,byte[] mask) : base(name)
     {
@@ -227,26 +225,7 @@ public class Host : Device
     
 
     
-    public static bool IsBroadcast(byte[] mac)
-    {
-        int count = 0;
-        for (int i = 0; i < 6; i++)
-        {
-            if (mac[i] == 0xFF)
-            {
-                count++;
-            }
-        }
-
-        if (count == mac.Length)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    
 
     
 

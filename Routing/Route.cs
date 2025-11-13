@@ -3,9 +3,9 @@ public class Route
     public byte[] Destination { get; set; }
     public byte[] Netmask { get; set; }
     public byte[] Gateaway { get; set; }
-    public Network Interface { get; set; }
+    public NetworkInterface Interface { get; set; }
 
-    public Route(byte[] Destination, byte[] Netmask, byte[] Gateaway, Network Interface)
+    public Route(byte[] Destination, byte[] Netmask, byte[] Gateaway, NetworkInterface Interface)
     {
         this.Destination = Destination ?? new byte[] { 0, 0, 0, 0 };
         this.Netmask = Netmask ?? new byte[] { 0, 0, 0, 0 };
