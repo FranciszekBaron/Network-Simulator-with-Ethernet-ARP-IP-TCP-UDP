@@ -26,12 +26,12 @@ public class Router : Device
         return iface;
     }
 
-    protected override void HandleIP(byte[] payload,NetworkInterface networkInterface)
+
+    //Na kazdym Hopie zmienia się SourceMAC,DestMAC oraz TTL
+    protected override void HandleIP(byte[] payload, NetworkInterface networkInterface)
     {
         //Deserialize packet
         IPPacket packet = IPPacket.Deserialize(payload);
-
-
 
         //Check TTL -- zabezpieczenianie przed petlami routingowymi 
         if (packet.TTL == 0)
@@ -43,34 +43,9 @@ public class Router : Device
 
         // byte[] nextHop = routingTable.GetNextHop(packet.DestinationIP);
 
-
     }
 
-    public override void ReceiveFrame(EthernetFrame ethernetFrame, NetworkInterface networkInterface)
-    {
-        //Czy moj MAC??
-
-        if (!IsItMyMAC(ethernetFrame.DestinationMAC, networkInterface) && !IsBroadcast(ethernetFrame.DestinationMAC))
-        {
-            LoggingManager.PrintWarning($"Given MAC ({ethernetFrame.DestinationMAC}) not in local network, not a Broadcast either");
-            return;
-        }
-
-        //Jaki EthernetType - taka operacja
-
-        if (ethernetFrame.EtherType == NetworkConstants.ETHERTYPE_ARP)
-        {
-            HandleARP(ethernetFrame.Payload, networkInterface);
-        }
-        else if (ethernetFrame.EtherType == NetworkConstants.ETHERTYPE_IP)
-        {
-            HandleIP(ethernetFrame.Payload, networkInterface);
-        }
-        else
-        {
-            LoggingManager.PrintWarning("No such EtherType available");
-        }
-    }
+    
     
     public virtual void SendFrame(EthernetFrame ethernetFrame, Network network)
     {

@@ -31,10 +31,6 @@ public class Program
         var eth0 = router1.AddInterface("eth0",router1IP,router1MAC,[255, 255, 255, 0 ]);
         var eth1 = router1.AddInterface("eth1", [0xAA, 0xBB, 0xCC, 0x00, 0x01, 0x02], [10, 0, 0, 1], [255, 255, 255, 0]);
 
-        Console.WriteLine("=======================");
-        Console.WriteLine(router1.Interfaces[0]);
-        Console.WriteLine("=======================");
-
         // Router 2
         byte[] router2MAC = new byte[] { 0xB4, 0x41, 0x11, 0x44, 0x44, 0x44 };
         byte[] router2IP = new byte[] { 200, 202, 0, 20 };
@@ -53,8 +49,11 @@ public class Program
 
         LAN.ConnectDevice(me,me.Interface);
         LAN.ConnectDevice(myGirlfriend,myGirlfriend.Interface);
-        LAN.ConnectDevice(myFlatmate,myFlatmate.Interface);
-        LAN.ConnectDevice(router1,router1.Interfaces[0]);
+        LAN.ConnectDevice(myFlatmate, myFlatmate.Interface);
+        
+        //Router ma rózne (wiele) kart sieciowych - interfaców
+        LAN.ConnectDevice(router1, eth0);
+    
 
         me.RoutingTable.AddRoute(new Route([192, 23, 0, 0], [255, 255, 0, 0], [192, 32, 1, 1], me.Interface)); //lokalna mała sieć 
         me.RoutingTable.AddRoute(new Route([192, 23, 2, 0], [255, 255, 255, 0], null, me.Interface)); //lokalna mała sieć 
@@ -62,7 +61,7 @@ public class Program
         me.RoutingTable.AddRoute(new Route(myFlatmate.Interface.IpAdress, myFlatmate.ConnectedNetwork[0].Netmask, null, me.Interface));
         me.RoutingTable.AddRoute(new Route(myGirlfriend.Interface.IpAdress, myGirlfriend.ConnectedNetwork[0].Netmask, null, me.Interface));
 
-        WAN1.ConnectDevice(router1,router1.Interfaces[0]);
+        WAN1.ConnectDevice(router1,eth1);
         // WAN1.ConnectDevice(router2,router2.Interfaces[0]);
 
         // WAN2.ConnectDevice(router2,router2.Interfaces[0]);
@@ -73,9 +72,6 @@ public class Program
 
         // WAN4.ConnectDevice(router4,router4.Interfaces[0]);
         // WAN4.ConnectDevice(target,target.Interface);
-
-
-    
 
 
         me.SendPacket(target.Interface.IpAdress,[255]);

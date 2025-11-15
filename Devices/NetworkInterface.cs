@@ -5,7 +5,6 @@ public class NetworkInterface
     public byte[] MacAdress { get; set; }
     public byte[] Mask { get; set; }
 
-
     // Status flags
     public bool IsUp { get; set; } = true;
     public string State => IsUp ? "UP" : "DOWN";

@@ -66,58 +66,8 @@ public class Host : Device
 
         SendFrame(ethernetFrame, ConnectedNetwork[0]);
         LoggingManager.PrintPositive("Packet send");
-
-    }
-
-    public override void ReceiveFrame(EthernetFrame ethernetFrame,NetworkInterface networkInterface)
-    {
-    
-        //Czy moj MAC??
-
-        if (!IsItMyMAC(ethernetFrame.DestinationMAC) && !IsBroadcast(ethernetFrame.DestinationMAC))
-        {
-            LoggingManager.PrintWarning($"Given MAC ({ethernetFrame.DestinationMAC}) not in local network, not a Broadcast either");
-            return;
-        }
-
-        //Jaki EthernetType - taka operacja
-        
-        if (ethernetFrame.EtherType == NetworkConstants.ETHERTYPE_ARP)
-        {
-            HandleARP(ethernetFrame.Payload,networkInterface);
-        }
-        else if (ethernetFrame.EtherType == NetworkConstants.ETHERTYPE_IP)
-        {
-            HandleIP(ethernetFrame.Payload,networkInterface);
-        }
-        else
-        {
-            LoggingManager.PrintWarning("No such EtherType available");
-        }
-
     }
     
-
-    public virtual void SendFrame(EthernetFrame ethernetFrame, Network network)
-    {
-        if (this.ConnectedNetwork.Contains(network))
-        {
-            if (IsBroadcast(ethernetFrame.DestinationMAC)) //Broadcast - do wszystkich 
-            {
-                network.Broadcast(this, ethernetFrame);
-            }
-            else //Unicast - do konkretnego MAC
-            {
-                network.Unicast(ethernetFrame);
-            }
-        }
-        else
-        {
-            throw new Exception("Nie podłączono do sieci");
-        }
-    }
-
-
     public void SendArpRequest(byte[] targetIP)
     {
         AdressResolutionProtocol arp = new AdressResolutionProtocol(1, Interface.MacAdress, Interface.IpAdress, [0, 0, 0, 0, 0, 0], targetIP);
@@ -197,7 +147,6 @@ public class Host : Device
             return;
         }
         
-
         arpCache.Add(ConvertionManager.IPtoString(IpAdress), MacAdress);
 
         //Print dodanej pary IP <-> MAC
@@ -209,25 +158,4 @@ public class Host : Device
             }
         }
     }
-
-    protected virtual bool IsItMyMAC(byte[] mac)
-    {
-        string receivedMAC = ConvertionManager.MACtoString(mac);
-
-        string myMAC = ConvertionManager.MACtoString(Interface.MacAdress);
-
-        if (receivedMAC != myMAC)
-        {
-            return false;
-        }
-        return true;
-    }
-    
-
-    
-    
-
-    
-
-   
 }
