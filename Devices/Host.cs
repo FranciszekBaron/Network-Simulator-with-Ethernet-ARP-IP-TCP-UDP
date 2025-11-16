@@ -8,13 +8,10 @@ public class Host : Device
     
     public NetworkInterface Interface { get; set; } // Host ma jeden MAC i IP 
 
-    public Dictionary<string,byte[]> arpCache { get; set; }
-
     public Host(string name,byte[] MacAdress, byte[] IpAdress,byte[] mask) : base(name)
     {
         Interface = new NetworkInterface("eth0", IpAdress, MacAdress, mask);
         ConnectedNetwork = new List<Network>();
-        arpCache = new Dictionary<string, byte[]>();
     }
     
     public virtual void SendPacket(byte[] IPAdrress,byte[] data)
@@ -32,9 +29,9 @@ public class Host : Device
 
         LoggingManager.PrintDevice($"HEJ to [{ConvertionManager.IPtoString(Interface.IpAdress)}] i moj MacAdress to: {ConvertionManager.MACtoString(Interface.MacAdress)}");
 
-        if (arpCache.ContainsKey(nextHopToString))
+        if (Interface.arpCache.ContainsKey(nextHopToString))
         {
-            nextHopMAC = arpCache[ConvertionManager.IPtoString(nextHop)];
+            nextHopMAC = Interface.arpCache[ConvertionManager.IPtoString(nextHop)];
             LoggingManager.PrintNormal($"[{Name}] MAC from ARP CACHE is:" + ConvertionManager.MACtoString(nextHopMAC));
         }
         else
@@ -43,7 +40,7 @@ public class Host : Device
             LoggingManager.PrintNormal($"Wykonuje ARP Request do ... {ConvertionManager.IPtoString(nextHop)}");
             SendArpRequest(nextHop);
 
-            nextHopMAC = arpCache[nextHopToString];
+            nextHopMAC = Interface.arpCache[nextHopToString];
         }
 
         IPPacket ipPacket = new IPPacket(
@@ -146,10 +143,10 @@ public class Host : Device
             return;
         }
         
-        arpCache.Add(ConvertionManager.IPtoString(IpAdress), MacAdress);
+        Interface.arpCache.Add(ConvertionManager.IPtoString(IpAdress), MacAdress);
 
         //Print dodanej pary IP <-> MAC
-        foreach (var pair in arpCache)
+        foreach (var pair in Interface.arpCache)
         {
             if (pair.Key == ConvertionManager.IPtoString(IpAdress))
             {

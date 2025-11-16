@@ -14,7 +14,6 @@ public abstract class Device
         RoutingTable = new RoutingTable();
     }
     
-
     protected abstract void HandleIP(byte[] payload,NetworkInterface networkInterface);
     protected abstract void HandleARP(byte[] payload, NetworkInterface networkInterface);
 

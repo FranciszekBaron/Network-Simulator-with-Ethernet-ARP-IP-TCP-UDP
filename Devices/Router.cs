@@ -36,7 +36,9 @@ public class Router : Device
 
         //Packet dla mnie -- odpowiedz i zakończ
         string targetIP = ConvertionManager.IPtoString(packet.DestinationIP);
-        NetworkInterface incomingInterface = Interfaces.FirstOrDefault(e => ConvertionManager.IPtoString(e.IpAdress) == targetIP);
+        NetworkInterface incomingInterface = Interfaces.FirstOrDefault(
+            e => ConvertionManager.IPtoString(e.IpAdress) == targetIP
+        );
 
         if (incomingInterface != null)
         {
@@ -63,6 +65,11 @@ public class Router : Device
 
         //Sprawdz outgoing interface , który ma być uzyty
         NetworkInterface outgoingInterface = Interfaces.FirstOrDefault(e => e.Name == route.Interface.Name);
+
+
+        //Arp lookup na nastepny MAC
+        
+
         
         Console.WriteLine(ConvertionManager.IPtoString(nextHop) + " via: " + outgoingInterface.Name);
     }

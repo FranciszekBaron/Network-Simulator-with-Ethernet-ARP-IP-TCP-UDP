@@ -64,8 +64,6 @@ public class Network
             }
         }
 
-
-
         if (target == null)
         {
             throw new Exception("Unknown Host Error");
@@ -75,7 +73,6 @@ public class Network
         {
             throw new Exception("Upcoming Interface Error");
         }
-
 
         LoggingManager.PrintNormal("\n" + $"Wykonuje Unicast do {BitConverter.ToString(ethernetFrame.DestinationMAC).Replace("-", ":")}..." + "\n");
         target.ReceiveFrame(ethernetFrame,upcomingInterface);
