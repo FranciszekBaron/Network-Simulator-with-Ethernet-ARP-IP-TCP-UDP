@@ -28,13 +28,19 @@ public class Program
         byte[] router1IP = [ 100, 101, 0, 10 ];
         Router router1 = new Router("My route(Gateway)");
 
-        var eth0 = router1.AddInterface("eth0",router1IP,router1MAC,[255, 255, 255, 0 ]);
-        var eth1 = router1.AddInterface("eth1", [0xAA, 0xBB, 0xCC, 0x00, 0x01, 0x02], [10, 0, 0, 1], [255, 255, 255, 0]);
+        var router1_eth0 = router1.AddInterface("eth0",router1IP,router1MAC,[255, 255, 255, 0 ]);
+        var router1_eth1 = router1.AddInterface("eth1", [10, 0, 0, 1], [0xAA, 0xBB, 0xCC, 0x00, 0x01, 0x02], [255, 255, 255, 0]);
+        
 
         // Router 2
         byte[] router2MAC = new byte[] { 0xB4, 0x41, 0x11, 0x44, 0x44, 0x44 };
         byte[] router2IP = new byte[] { 200, 202, 0, 20 };
         Router router2 = new Router("Router ISO");
+
+        var router2_eth0 = router2.AddInterface("eth0",router2IP,router2MAC,[255, 255, 255, 0 ]);
+        var router_2_eth1 = router2.AddInterface("eth1", [0xAA, 0xBB, 0xCC, 0x00, 0x01, 0x02], [10, 0, 0, 1], [255, 255, 255, 0]);
+
+
 
         // Router 3 (poprawione IP)
         byte[] router3MAC = new byte[] { 0xB5, 0x51, 0x11, 0x55, 0x55, 0x55 };
@@ -50,19 +56,23 @@ public class Program
         LAN.ConnectDevice(me,me.Interface);
         LAN.ConnectDevice(myGirlfriend,myGirlfriend.Interface);
         LAN.ConnectDevice(myFlatmate, myFlatmate.Interface);
-        
         //Router ma rózne (wiele) kart sieciowych - interfaców
-        LAN.ConnectDevice(router1, eth0);
+        LAN.ConnectDevice(router1, router1_eth0);
     
-
         me.RoutingTable.AddRoute(new Route([192, 23, 0, 0], [255, 255, 0, 0], [192, 32, 1, 1], me.Interface)); //lokalna mała sieć 
         me.RoutingTable.AddRoute(new Route([192, 23, 2, 0], [255, 255, 255, 0], null, me.Interface)); //lokalna mała sieć 
-        me.RoutingTable.SetDefaultGateway(router1.Interfaces[0].IpAdress, me.Interface);
+        me.RoutingTable.SetDefaultGateway(router1_eth0.IpAdress, me.Interface);
         me.RoutingTable.AddRoute(new Route(myFlatmate.Interface.IpAdress, myFlatmate.ConnectedNetwork[0].Netmask, null, me.Interface));
         me.RoutingTable.AddRoute(new Route(myGirlfriend.Interface.IpAdress, myGirlfriend.ConnectedNetwork[0].Netmask, null, me.Interface));
 
-        WAN1.ConnectDevice(router1,eth1);
+
+
+        WAN1.ConnectDevice(router1, router1_eth1);
+        router1.RoutingTable.AddRoute(new Route([200, 2, 200, 0], [255, 255, 255, 0], null, router1_eth0));
+        router1.RoutingTable.SetDefaultGateway(router2_eth0.IpAdress, router1_eth1);
+
         // WAN1.ConnectDevice(router2,router2.Interfaces[0]);
+
 
         // WAN2.ConnectDevice(router2,router2.Interfaces[0]);
         // WAN2.ConnectDevice(router3,router3.Interfaces[0]);
@@ -75,28 +85,6 @@ public class Program
 
 
         me.SendPacket(target.Interface.IpAdress,[255]);
-
-
-        
-        // ushort opcode = 1;
-        // byte[] senderMAC = new byte[] { 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA };
-        // byte[] senderIP = new byte[] { 192, 168, 0, 10 };
-        // byte[] targetMAC = new byte[] { 0, 0, 0, 0, 0, 0 }; // nieznamy go 
-        // byte[] targetIP = new byte[] { 192, 168, 0, 1 };
-
-        // AdressResolutionProtocol adr = new AdressResolutionProtocol(opcode, senderMAC, senderIP, targetMAC, targetIP);
-
-        // Console.WriteLine(adr);
-
-        // byte[] destinationMAC = new byte[] { 0b10001000, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
-        // byte[] sourceMAC = new byte[] { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 };
-        // ushort etherType = 0x0806;
-        // byte[] payload = AdressResolutionProtocol.Serialize(adr);
-
-        // EthernetFrame ramka = new EthernetFrame(destinationMAC, sourceMAC, etherType, payload);
-
-        // Console.WriteLine(ramka);
-
 
 
     }

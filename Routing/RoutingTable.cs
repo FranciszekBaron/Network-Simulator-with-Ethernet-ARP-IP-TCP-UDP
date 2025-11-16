@@ -6,9 +6,9 @@ public class RoutingTable
         
     }
     
-    public void SetDefaultGateway(byte[] IPAdrress,NetworkInterface iface)
+    public void SetDefaultGateway(byte[] gateaway,NetworkInterface iface)
     {
-        routes.Add(new Route([0, 0, 0, 0], [0, 0, 0, 0], IPAdrress, iface));
+        routes.Add(new Route([0, 0, 0, 0], [0, 0, 0, 0], gateaway, iface));
     }
 
 

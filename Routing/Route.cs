@@ -59,6 +59,6 @@ public class Route
             ConvertionManager.IPtoString(Destination),
             ConvertionManager.IPtoString(Netmask),
             ConvertionManager.IPtoString(Gateaway),
-            Interface?.ToString() ?? "null");
+            Interface?.Name ?? "null");
     }
 }

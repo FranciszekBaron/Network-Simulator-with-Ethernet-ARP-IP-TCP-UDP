@@ -12,7 +12,7 @@ public class Host : Device
 
     public Host(string name,byte[] MacAdress, byte[] IpAdress,byte[] mask) : base(name)
     {
-        Interface = new NetworkInterface("name", IpAdress, MacAdress, mask);
+        Interface = new NetworkInterface("eth0", IpAdress, MacAdress, mask);
         ConnectedNetwork = new List<Network>();
         arpCache = new Dictionary<string, byte[]>();
     }
@@ -64,8 +64,8 @@ public class Host : Device
 
         LoggingManager.PrintNormal($"[{Name}] Created Ethernet Frame: {ConvertionManager.MACtoString(ethernetFrame.SourceMAC)} → {ConvertionManager.MACtoString(ethernetFrame.DestinationMAC)}");
 
+        LoggingManager.PrintNormal("Sending packet...");
         SendFrame(ethernetFrame, ConnectedNetwork[0]);
-        LoggingManager.PrintPositive("Packet send");
     }
     
     public void SendArpRequest(byte[] targetIP)

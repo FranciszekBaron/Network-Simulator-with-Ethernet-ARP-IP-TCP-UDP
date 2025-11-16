@@ -4,7 +4,7 @@ public class Router : Device
 {
     
 
-    public Dictionary<string, string> FIB;
+    // public Dictionary<string, string> FIB;
 
     public List<NetworkInterface> Interfaces { get; set; }
 
@@ -33,6 +33,18 @@ public class Router : Device
         //Deserialize packet
         IPPacket packet = IPPacket.Deserialize(payload);
 
+
+        string targetIP = ConvertionManager.IPtoString(packet.DestinationIP);
+        NetworkInterface incomingInterface = Interfaces.FirstOrDefault(e => ConvertionManager.IPtoString(e.IpAdress) == targetIP);
+
+
+        //Packet dla mnie -- odpowiedz i zakończ,
+        if (incomingInterface != null)
+        {
+            LoggingManager.PrintPositive($"Packet Received from {ConvertionManager.IPtoString(incomingInterface.IpAdress)}");
+            return;
+        } 
+
         //Check TTL -- zabezpieczenianie przed petlami routingowymi 
         if (packet.TTL == 0)
         {
@@ -41,8 +53,16 @@ public class Router : Device
         }
         packet.TTL--;
 
-        // byte[] nextHop = routingTable.GetNextHop(packet.DestinationIP);
 
+
+        
+        // Sprawdź następny Hop
+        LoggingManager.PrintNormal("========= HOST A Routing Table =========");
+        LoggingManager.PrintNormal(RoutingTable.ToString());
+        LoggingManager.PrintNormal("========================================");
+
+        
+        byte[] nextHop = RoutingTable.GetNextHop(packet.DestinationIP);
     }
 
     
