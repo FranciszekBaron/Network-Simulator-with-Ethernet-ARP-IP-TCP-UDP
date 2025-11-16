@@ -54,16 +54,17 @@ public class Router : Device
 
 
 
-        
         // Sprawdź następny Hop
         LoggingManager.PrintNormal("========= HOST A Routing Table =========");
         LoggingManager.PrintNormal(RoutingTable.ToString());
         LoggingManager.PrintNormal("========================================");
-
-
         byte[] nextHop = RoutingTable.GetNextHop(packet.DestinationIP);
+        Route route = RoutingTable.routes.FirstOrDefault(e => e.Gateaway == nextHop || e.Destination == nextHop);
 
-        Console.WriteLine(ConvertionManager.IPtoString(nextHop));
+        //Sprawdz outgoing interface , który ma być uzyty
+        NetworkInterface outgoingInterface = Interfaces.FirstOrDefault(e => e.Name == route.Interface.Name);
+        
+        Console.WriteLine(ConvertionManager.IPtoString(nextHop) + " via: " + outgoingInterface.Name);
     }
 
     

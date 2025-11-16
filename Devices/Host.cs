@@ -19,7 +19,7 @@ public class Host : Device
     
     public virtual void SendPacket(byte[] IPAdrress,byte[] data)
     {
-
+        //Znajdzmy NextHOP
         LoggingManager.PrintNormal("========= HOST A Routing Table =========");
         LoggingManager.PrintNormal(RoutingTable.ToString());
         LoggingManager.PrintNormal("========================================");
@@ -29,7 +29,6 @@ public class Host : Device
         byte[] nextHopMAC;
 
         string nextHopToString = ConvertionManager.IPtoString(nextHop);
-
 
         LoggingManager.PrintDevice($"HEJ to [{ConvertionManager.IPtoString(Interface.IpAdress)}] i moj MacAdress to: {ConvertionManager.MACtoString(Interface.MacAdress)}");
 
@@ -129,7 +128,7 @@ public class Host : Device
 
     protected override void HandleIP(byte[] payload, NetworkInterface incomingInterface)
     {
-        Console.WriteLine($"Jestem router {Interface.MacAdress} i mam IP: {Interface.IpAdress} , dostałem ramkę IPv4");
+        Console.WriteLine($"Jestem router {ConvertionManager.MACtoString(Interface.MacAdress)} i mam IP: {ConvertionManager.IPtoString(Interface.IpAdress)} , dostałem ramkę IPv4");
     }
 
 

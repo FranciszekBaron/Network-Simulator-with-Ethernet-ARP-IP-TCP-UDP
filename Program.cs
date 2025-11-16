@@ -23,7 +23,7 @@ public class Program
         );
 
         Host myGirlfriend = new Host("Her computer",
-            MacAdress: [12, 22, 33, 44, 55, 66],
+            MacAdress: [12, 22, 33, 44, 55, 67],
             IpAdress: [192, 23, 1, 20],
             mask: [255, 255, 255, 0]
         );
@@ -89,15 +89,15 @@ public class Program
         LAN.ConnectDevice(myFlatmate, myFlatmate.Interface);
         LAN.ConnectDevice(router1, router1_eth0);
 
-        //ROUTING TABLE DLA HOSTA
+        //ROUTINGTABLE DLA HOSTA
         me.RoutingTable.AddRoute(new Route([192, 23, 0, 0], [255, 255, 0, 0], null, me.Interface)); //lokalna mała sieć 
         me.RoutingTable.SetDefaultGateway(router1_eth0.IpAdress, outgoingInterface: me.Interface);
 
-
-
         //WAN
         WAN1.ConnectDevice(router1, router1_eth1);
-        //ROUTING TABLE DLA ROUTER1
+
+
+        //ROUTINGTABLE DLA ROUTER1
         router1.RoutingTable.AddRoute(new Route([200, 2,0, 0], [255, 255, 0, 0], null, router1_eth1));
         router1.RoutingTable.SetDefaultGateway(router2_eth0.IpAdress, outgoingInterface: router1_eth1);
 
@@ -112,7 +112,6 @@ public class Program
 
         // WAN4.ConnectDevice(router4,router4.Interfaces[0]);
         // WAN4.ConnectDevice(target,target.Interface);
-
 
         me.SendPacket(target.Interface.IpAdress,[255]);
 

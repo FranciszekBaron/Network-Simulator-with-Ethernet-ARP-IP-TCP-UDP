@@ -2,6 +2,7 @@ public static class NetworkConstants
 {
     public static readonly byte[] BROADCAST_MAC = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
     public static readonly byte[] ZERO_MAC = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    public static readonly byte[] IP_NULL = new byte[] { 0, 0, 0, 0 };
     
     // EtherTypes
     public const ushort ETHERTYPE_IP = 0x0800;

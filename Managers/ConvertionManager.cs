@@ -1,3 +1,4 @@
+
 public class ConvertionManager
 {
     public static string IPtoString(byte[] ip)
@@ -8,6 +9,11 @@ public class ConvertionManager
 
     public static string MACtoString(byte[] mac)
     {
-        return $"{mac[0]}:{mac[1]}:{mac[2]}:{mac[3]}:{mac[4]}:{mac[5]}";
+        return BitConverter.ToString(mac).Replace("-",":");
+    }
+
+    internal static string? IPtoString(string v)
+    {
+        throw new NotImplementedException();
     }
 }

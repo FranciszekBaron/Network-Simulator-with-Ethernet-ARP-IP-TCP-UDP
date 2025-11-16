@@ -31,13 +31,15 @@ public class RoutingTable
                 }
             }
         }
-
-        if(bestMatch == null)
+        LoggingManager.PrintNormal("Best route: " + bestMatch);
+        if (bestMatch == null)
         {
             throw new Exception($"No route to host: {IPAdrress}");
         }
 
-        if(bestMatch.Gateaway == null)
+        string bestMatchGateaway = ConvertionManager.IPtoString(bestMatch.Gateaway);
+    
+        if(bestMatchGateaway == ConvertionManager.IPtoString(NetworkConstants.IP_NULL))
         {
             return IPAdrress;
         }
