@@ -21,7 +21,8 @@ public class Router : Device
     {
         var iface = new NetworkInterface(name, IpAdress, MacAdress, mask);
         Interfaces.Add(iface);
-        RoutingTable.AddRoute(new Route(IpAdress, mask, null, iface));
+        RoutingTable.AddRoute(new Route(IpAdress, mask, null, iface,"Auto (Add-Interface)"));
+
         
         return iface;
     }
@@ -33,12 +34,10 @@ public class Router : Device
         //Deserialize packet
         IPPacket packet = IPPacket.Deserialize(payload);
 
-
+        //Packet dla mnie -- odpowiedz i zakończ
         string targetIP = ConvertionManager.IPtoString(packet.DestinationIP);
         NetworkInterface incomingInterface = Interfaces.FirstOrDefault(e => ConvertionManager.IPtoString(e.IpAdress) == targetIP);
 
-
-        //Packet dla mnie -- odpowiedz i zakończ,
         if (incomingInterface != null)
         {
             LoggingManager.PrintPositive($"Packet Received from {ConvertionManager.IPtoString(incomingInterface.IpAdress)}");
@@ -61,8 +60,10 @@ public class Router : Device
         LoggingManager.PrintNormal(RoutingTable.ToString());
         LoggingManager.PrintNormal("========================================");
 
-        
+
         byte[] nextHop = RoutingTable.GetNextHop(packet.DestinationIP);
+
+        Console.WriteLine(ConvertionManager.IPtoString(nextHop));
     }
 
     

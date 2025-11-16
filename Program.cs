@@ -1,4 +1,5 @@
-﻿using System.Runtime.Intrinsics.Wasm;
+﻿using System.Net;
+using System.Runtime.Intrinsics.Wasm;
 
 public class Program
 {
@@ -10,36 +11,63 @@ public class Program
         //Sieć
         Network LAN = new Network("LAN");
         Network WAN1 = new Network("WAN1");
-        Network WAN2 = new Network("WAN2");
-        Network WAN3 = new Network("WAN3");
-        Network WAN4 = new Network("WAN4");
+        // Network WAN2 = new Network("WAN2");
+        // Network WAN3 = new Network("WAN3");
+        // Network WAN4 = new Network("WAN4");
 
-        //Sender and Receiver
-        Host me = new Host("my computer", [11, 22, 33, 44, 55, 66], [192, 23, 1, 10],[255,255,255,0]);
+        //============== HOSTY W LAN ===========
+        Host me = new Host("My computer",
+            MacAdress: [11, 22, 33, 44, 55, 66],
+            IpAdress: [192, 23, 1, 10],
+            mask:[255, 255, 255, 0]
+        );
 
-        Host myGirlfriend = new Host("Her computer", [12, 22, 33, 44, 55, 66], [192, 23, 1, 20],[255,255,255,0]);
+        Host myGirlfriend = new Host("Her computer",
+            MacAdress: [12, 22, 33, 44, 55, 66],
+            IpAdress: [192, 23, 1, 20],
+            mask: [255, 255, 255, 0]
+        );
 
-        Host myFlatmate = new Host("His computer", [13, 24, 35, 46, 57, 68], [192, 23, 1, 34],[255,255,255,0]);
+        Host myFlatmate = new Host("His computer",
+            MacAdress: [13, 24, 35, 46, 57, 68],
+            IpAdress: [192, 23, 1, 34],
+            mask: [255, 255, 255, 0]
+        );
 
+        //======= TARGET ========
         Host target = new Host("Google", [88, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF], [8, 8, 8, 8],[255,255,255,0]);
 
-        // Router 1 
-        byte[] router1MAC = [0xB3, 0x31, 0x11, 0x33, 0x33, 0x33 ];
-        byte[] router1IP = [ 100, 101, 0, 10 ];
-        Router router1 = new Router("My route(Gateway)");
+        // ========== ROUTER 1 (DOMOWY ROUTER ================
+        Router router1 = new Router("Home Gateaway");
 
-        var router1_eth0 = router1.AddInterface("eth0",router1IP,router1MAC,[255, 255, 255, 0 ]);
-        var router1_eth1 = router1.AddInterface("eth1", [10, 0, 0, 1], [0xAA, 0xBB, 0xCC, 0x00, 0x01, 0x02], [255, 255, 255, 0]);
+        //incoming interface
+        var router1_eth0 = router1.AddInterface("eth0",
+            IpAdress: [192, 23, 1, 1], // <-- ta sama sieć w której są hosty 
+            MacAdress: [0xB3, 0x31, 0x11, 0x33, 0x33, 0x33],
+            mask: [255, 255, 255, 0]
+        );
+        //outgoing interface ale on sie nie rowna gateaway, gateaway to incoming interface w nastepnym routerze
+        var router1_eth1 = router1.AddInterface("eth1",
+            IpAdress: [100, 101, 0, 10],
+            MacAdress: [0xAA, 0xBB, 0xCC, 0x00, 0x01, 0x02],
+            mask: [255, 255, 255, 0]
+        );
         
 
-        // Router 2
-        byte[] router2MAC = new byte[] { 0xB4, 0x41, 0x11, 0x44, 0x44, 0x44 };
-        byte[] router2IP = new byte[] { 200, 202, 0, 20 };
+        // ========== ROUTER 2 (DALEJ ROUTER) ================
         Router router2 = new Router("Router ISO");
 
-        var router2_eth0 = router2.AddInterface("eth0",router2IP,router2MAC,[255, 255, 255, 0 ]);
-        var router_2_eth1 = router2.AddInterface("eth1", [0xAA, 0xBB, 0xCC, 0x00, 0x01, 0x02], [10, 0, 0, 1], [255, 255, 255, 0]);
+        var router2_eth0 = router2.AddInterface("eth0",
+            IpAdress:[100,101,0,1], //<-- ta sama sieć w której był router1
+            MacAdress: [0xB4, 0x41, 0x11, 0x44, 0x44, 0x44],
+            mask: [255, 255, 255, 0]
+        );
 
+        var router2_eth1 = router2.AddInterface("eth1",
+            IpAdress: [10, 0, 0, 1],
+            MacAdress: [0xAA, 0xBB, 0xCC, 0x00, 0x01, 0x02],
+            mask: [255, 255, 255, 0]
+        );
 
 
         // Router 3 (poprawione IP)
@@ -56,20 +84,16 @@ public class Program
         LAN.ConnectDevice(me,me.Interface);
         LAN.ConnectDevice(myGirlfriend,myGirlfriend.Interface);
         LAN.ConnectDevice(myFlatmate, myFlatmate.Interface);
-        //Router ma rózne (wiele) kart sieciowych - interfaców
         LAN.ConnectDevice(router1, router1_eth0);
     
-        me.RoutingTable.AddRoute(new Route([192, 23, 0, 0], [255, 255, 0, 0], [192, 32, 1, 1], me.Interface)); //lokalna mała sieć 
-        me.RoutingTable.AddRoute(new Route([192, 23, 2, 0], [255, 255, 255, 0], null, me.Interface)); //lokalna mała sieć 
+        me.RoutingTable.AddRoute(new Route([192, 23, 0, 0], [255, 255, 0, 0], null, me.Interface)); //lokalna mała sieć 
         me.RoutingTable.SetDefaultGateway(router1_eth0.IpAdress, me.Interface);
-        me.RoutingTable.AddRoute(new Route(myFlatmate.Interface.IpAdress, myFlatmate.ConnectedNetwork[0].Netmask, null, me.Interface));
-        me.RoutingTable.AddRoute(new Route(myGirlfriend.Interface.IpAdress, myGirlfriend.ConnectedNetwork[0].Netmask, null, me.Interface));
 
 
 
         WAN1.ConnectDevice(router1, router1_eth1);
-        router1.RoutingTable.AddRoute(new Route([200, 2, 200, 0], [255, 255, 255, 0], null, router1_eth0));
-        router1.RoutingTable.SetDefaultGateway(router2_eth0.IpAdress, router1_eth1);
+        router1.RoutingTable.AddRoute(new Route([200, 2, 200, 0], [255, 255, 255, 0], null, router1_eth1));
+        router1.RoutingTable.SetDefaultGateway(router2_eth0.IpAdress, outgoingInterface: router1_eth1);
 
         // WAN1.ConnectDevice(router2,router2.Interfaces[0]);
 

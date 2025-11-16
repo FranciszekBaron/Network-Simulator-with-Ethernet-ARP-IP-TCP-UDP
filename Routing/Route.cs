@@ -5,12 +5,24 @@ public class Route
     public byte[] Gateaway { get; set; }
     public NetworkInterface Interface { get; set; }
 
+    private string From { get; set; }
+
+    public Route(byte[] Destination, byte[] Netmask, byte[] Gateaway, NetworkInterface Interface, string From)
+    {
+        this.Destination = Destination ?? new byte[] { 0, 0, 0, 0 };
+        this.Netmask = Netmask ?? new byte[] { 0, 0, 0, 0 };
+        this.Gateaway = Gateaway ?? new byte[] { 0, 0, 0, 0 };
+        this.Interface = Interface ?? throw new ArgumentNullException(nameof(Interface));
+        this.From = From;
+    }
+    
     public Route(byte[] Destination, byte[] Netmask, byte[] Gateaway, NetworkInterface Interface)
     {
         this.Destination = Destination ?? new byte[] { 0, 0, 0, 0 };
         this.Netmask = Netmask ?? new byte[] { 0, 0, 0, 0 };
         this.Gateaway = Gateaway ?? new byte[] { 0, 0, 0, 0 };
         this.Interface = Interface ?? throw new ArgumentNullException(nameof(Interface));
+        this.From = "User";
     }
 
 
@@ -55,10 +67,11 @@ public class Route
 
     public override string ToString()
     {
-        return string.Format("{0,-16}{1,-16}{2,-16}{3,-10}",
+        return string.Format("{0,-16}{1,-16}{2,-16}{3,-10}{4,-16}",
             ConvertionManager.IPtoString(Destination),
             ConvertionManager.IPtoString(Netmask),
             ConvertionManager.IPtoString(Gateaway),
-            Interface?.Name ?? "null");
+            Interface?.Name ?? "null",
+            From);
     }
 }

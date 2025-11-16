@@ -6,9 +6,9 @@ public class RoutingTable
         
     }
     
-    public void SetDefaultGateway(byte[] gateaway,NetworkInterface iface)
+    public void SetDefaultGateway(byte[] gateaway,NetworkInterface outgoingInterface)
     {
-        routes.Add(new Route([0, 0, 0, 0], [0, 0, 0, 0], gateaway, iface));
+        routes.Add(new Route([0, 0, 0, 0], [0, 0, 0, 0], gateaway, outgoingInterface,"SetDefaultGateaway"));
     }
 
 
@@ -54,8 +54,8 @@ public class RoutingTable
 
     public override string ToString()
     {
-        var header = string.Format("{0,-16}{1,-16}{2,-16}{3,-10}",
-            "Destination", "Netmask", "Gateway", "Interface");
+        var header = string.Format("{0,-16}{1,-16}{2,-16}{3,-10}{4,-16}",
+            "Destination", "Netmask", "Gateway", "Interface","From?");
 
         var rows = string.Join("\n", routes.Select(r => r.ToString()));
         return $"{header}\n{rows}";

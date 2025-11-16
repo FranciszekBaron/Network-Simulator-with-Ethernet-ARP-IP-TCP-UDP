@@ -78,7 +78,7 @@ public class Host : Device
     }
 
 
-    protected override void HandleARP(byte[] payload,NetworkInterface networkInterface)
+    protected override void HandleARP(byte[] payload,NetworkInterface incomingInterface)
     {
 
         //Deserialize packet
@@ -127,7 +127,7 @@ public class Host : Device
         }
     }
 
-    protected override void HandleIP(byte[] payload, NetworkInterface networkInterface)
+    protected override void HandleIP(byte[] payload, NetworkInterface incomingInterface)
     {
         Console.WriteLine($"Jestem router {Interface.MacAdress} i mam IP: {Interface.IpAdress} , dostałem ramkę IPv4");
     }

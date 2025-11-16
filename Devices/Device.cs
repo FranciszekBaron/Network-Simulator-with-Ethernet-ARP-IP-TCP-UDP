@@ -36,11 +36,11 @@ public abstract class Device
     }
 
 
-    public virtual void ReceiveFrame(EthernetFrame ethernetFrame, NetworkInterface networkInterface)
+    public virtual void ReceiveFrame(EthernetFrame ethernetFrame, NetworkInterface incomingInterface)
     {
         //Czy moj MAC??
 
-        if (!IsItMyMAC(ethernetFrame.DestinationMAC, networkInterface) && !IsBroadcast(ethernetFrame.DestinationMAC))
+        if (!IsItMyMAC(ethernetFrame.DestinationMAC, incomingInterface) && !IsBroadcast(ethernetFrame.DestinationMAC))
         {
             LoggingManager.PrintWarning($"Given MAC ({ethernetFrame.DestinationMAC}) not in local network, not a Broadcast either");
             return;
@@ -50,11 +50,11 @@ public abstract class Device
 
         if (ethernetFrame.EtherType == NetworkConstants.ETHERTYPE_ARP)
         {
-            HandleARP(ethernetFrame.Payload, networkInterface);
+            HandleARP(ethernetFrame.Payload, incomingInterface);
         }
         else if (ethernetFrame.EtherType == NetworkConstants.ETHERTYPE_IP)
         {
-            HandleIP(ethernetFrame.Payload, networkInterface);
+            HandleIP(ethernetFrame.Payload, incomingInterface);
         }
         else
         {
