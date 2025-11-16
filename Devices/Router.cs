@@ -21,9 +21,9 @@ public class Router : Device
     {
         var iface = new NetworkInterface(name, IpAdress, MacAdress, mask);
         Interfaces.Add(iface);
-        RoutingTable.AddRoute(new Route(IpAdress, mask, null, iface,"Auto (Add-Interface)"));
 
-        
+        byte[] network = CalculateNetwork(IpAdress, mask);
+        RoutingTable.AddRoute(new Route(network, mask, null, iface,"Auto (Add-Interface)"));
         return iface;
     }
 

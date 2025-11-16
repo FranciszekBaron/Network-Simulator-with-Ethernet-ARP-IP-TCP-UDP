@@ -46,23 +46,25 @@ public class Program
             MacAdress: [0xB3, 0x31, 0x11, 0x33, 0x33, 0x33],
             mask: [255, 255, 255, 0]
         );
-        //outgoing interface ale on sie nie rowna gateaway, gateaway to incoming interface w nastepnym routerze
+        //outgoing interface 
+        //nie rowna sie gateaway, gateaway to incoming interface w nastepnym routerze
         var router1_eth1 = router1.AddInterface("eth1",
             IpAdress: [100, 101, 0, 10],
             MacAdress: [0xAA, 0xBB, 0xCC, 0x00, 0x01, 0x02],
             mask: [255, 255, 255, 0]
         );
-        
+
 
         // ========== ROUTER 2 (DALEJ ROUTER) ================
         Router router2 = new Router("Router ISO");
 
+        //incoming interface
         var router2_eth0 = router2.AddInterface("eth0",
             IpAdress:[100,101,0,1], //<-- ta sama sieć w której był router1
             MacAdress: [0xB4, 0x41, 0x11, 0x44, 0x44, 0x44],
             mask: [255, 255, 255, 0]
         );
-
+        //outgoing interface
         var router2_eth1 = router2.AddInterface("eth1",
             IpAdress: [10, 0, 0, 1],
             MacAdress: [0xAA, 0xBB, 0xCC, 0x00, 0x01, 0x02],
@@ -80,19 +82,23 @@ public class Program
         byte[] router4IP = new byte[] { 8, 8, 8, 8 };  // Google DNS
         Router router4 = new Router("Google Router");
 
-
+        //========== POŁĄCZENIA ==============
+        //LAN 
         LAN.ConnectDevice(me,me.Interface);
         LAN.ConnectDevice(myGirlfriend,myGirlfriend.Interface);
         LAN.ConnectDevice(myFlatmate, myFlatmate.Interface);
         LAN.ConnectDevice(router1, router1_eth0);
-    
+
+        //ROUTING TABLE DLA HOSTA
         me.RoutingTable.AddRoute(new Route([192, 23, 0, 0], [255, 255, 0, 0], null, me.Interface)); //lokalna mała sieć 
-        me.RoutingTable.SetDefaultGateway(router1_eth0.IpAdress, me.Interface);
+        me.RoutingTable.SetDefaultGateway(router1_eth0.IpAdress, outgoingInterface: me.Interface);
 
 
 
+        //WAN
         WAN1.ConnectDevice(router1, router1_eth1);
-        router1.RoutingTable.AddRoute(new Route([200, 2, 200, 0], [255, 255, 255, 0], null, router1_eth1));
+        //ROUTING TABLE DLA ROUTER1
+        router1.RoutingTable.AddRoute(new Route([200, 2,0, 0], [255, 255, 0, 0], null, router1_eth1));
         router1.RoutingTable.SetDefaultGateway(router2_eth0.IpAdress, outgoingInterface: router1_eth1);
 
         // WAN1.ConnectDevice(router2,router2.Interfaces[0]);

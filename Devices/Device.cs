@@ -1,3 +1,5 @@
+using System.Reflection.PortableExecutable;
+
 public abstract class Device
 {
     public string Name { get; set; }
@@ -60,6 +62,17 @@ public abstract class Device
         {
             LoggingManager.PrintWarning("No such EtherType available");
         }
+    }
+
+    public static byte[] CalculateNetwork(byte[] ipAdress,byte[] mask)
+    {
+        byte[] network = new byte[4];
+
+        for(int i = 0; i < ipAdress.Length; i++)
+        {
+            network[i] = (byte)(ipAdress[i] & mask[i]);
+        }
+        return network;
     }
     
     public static bool IsItMyMAC(byte[] mac, NetworkInterface networkInterface)
