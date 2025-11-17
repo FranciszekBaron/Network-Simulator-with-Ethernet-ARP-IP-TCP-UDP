@@ -5,7 +5,7 @@ public abstract class Device
     public string Name { get; set; }
 
     // KERNEL SPACE
-    public List<Network> ConnectedNetwork { get; set; }
+    // public List<Network> ConnectedNetwork { get; set; }
     public RoutingTable RoutingTable { get; set; }
     
     public Device(string name)
@@ -16,24 +16,36 @@ public abstract class Device
     
     protected abstract void HandleIP(byte[] payload,NetworkInterface networkInterface);
     protected abstract void HandleARP(byte[] payload, NetworkInterface networkInterface);
-
-    public virtual void SendFrame(EthernetFrame ethernetFrame, Network network)
+    
+    public void SendArpRequest(byte[] targetIP,NetworkInterface outgoingInterface)
     {
-        if (this.ConnectedNetwork.Contains(network))
+        if (outgoingInterface.ConnectedNetwork == null)
         {
-            if (IsBroadcast(ethernetFrame.DestinationMAC)) //Broadcast - do wszystkich 
-            {
-                network.Broadcast(this, ethernetFrame);
-            }
-            else //Unicast - do konkretnego MAC
-            {
-                network.Unicast(ethernetFrame);
-            }
+            throw new Exception($"Interface {outgoingInterface.Name} not connected to any network");
         }
-        else
+        AdressResolutionProtocol arp = new AdressResolutionProtocol(1, outgoingInterface.MacAdress, outgoingInterface.IpAdress, [0, 0, 0, 0, 0, 0], targetIP);
+        byte[] arpBytes = AdressResolutionProtocol.Serialize(arp);
+        EthernetFrame sendedEthernetFrame = new EthernetFrame([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], outgoingInterface.MacAdress, 0x806, arpBytes);
+
+        SendFrame(sendedEthernetFrame, outgoingInterface);
+    }
+
+    public virtual void SendFrame(EthernetFrame ethernetFrame, NetworkInterface outgoingInterface)
+    {
+        if (outgoingInterface.ConnectedNetwork == null)
         {
-            throw new Exception("Nie podłączono do sieci");
+            throw new Exception($"Interface {outgoingInterface.Name} not connected to any network");
         }
+        if (IsBroadcast(ethernetFrame.DestinationMAC)) //Broadcast - do wszystkich 
+        {
+            outgoingInterface.ConnectedNetwork.Broadcast(this, ethernetFrame);
+        }
+        else //Unicast - do konkretnego MAC
+        {
+            outgoingInterface.ConnectedNetwork.Unicast(ethernetFrame);
+        }
+        
+        
     }
 
 

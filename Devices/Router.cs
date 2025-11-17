@@ -13,7 +13,6 @@ public class Router : Device
     public Router(string Name) : base(Name)
     {
         Interfaces = new List<NetworkInterface>();
-        ConnectedNetwork = new List<Network>();
     }
     
 
@@ -61,37 +60,63 @@ public class Router : Device
         LoggingManager.PrintNormal(RoutingTable.ToString());
         LoggingManager.PrintNormal("========================================");
         byte[] nextHop = RoutingTable.GetNextHop(packet.DestinationIP);
+
+        if (nextHop == null)
+        {
+            LoggingManager.PrintWarning($"[{Name}] No next hop found for {ConvertionManager.IPtoString(packet.DestinationIP)}");
+            return;
+        }
+        
         Route route = RoutingTable.routes.FirstOrDefault(e => e.Gateaway == nextHop || e.Destination == nextHop);
+
+        if (route == null)
+        {
+            LoggingManager.PrintWarning($"[{Name}] No route to host {ConvertionManager.IPtoString(packet.DestinationIP)}");
+            return;
+        }
 
         //Sprawdz outgoing interface , który ma być uzyty
         NetworkInterface outgoingInterface = Interfaces.FirstOrDefault(e => e.Name == route.Interface.Name);
 
+        if(outgoingInterface == null)
+        {
+            LoggingManager.PrintWarning($"No outgoing interface in Route: {route}");
+            return;
+        }
 
-        //Arp lookup na nastepny MAC
-        
+        // //Arp lookup na nastepny MAC
+        // byte[] nextHopMAC;
+        // string nextHopToString = ConvertionManager.IPtoString(nextHop);
+        // if (outgoingInterface.arpCache.ContainsKey(nextHopToString))
+        // {
+        //     nextHopMAC = outgoingInterface.arpCache[ConvertionManager.IPtoString(nextHop)];
+        //     LoggingManager.PrintNormal($"[{Name}] MAC from ARP CACHE is:" + ConvertionManager.MACtoString(nextHopMAC));
+        // }
+        // else
+        // {
+        //     //Nie ma IP <-> MAC w ARP? Zrób ARP Request
+        //     LoggingManager.PrintNormal($"Wykonuje ARP Request do ... {ConvertionManager.IPtoString(nextHop)}");
+        //     SendArpRequest(nextHop, outgoingInterface);
+        //     nextHopMAC = outgoingInterface.arpCache[nextHopToString];
+        // }
 
-        
+
         Console.WriteLine(ConvertionManager.IPtoString(nextHop) + " via: " + outgoingInterface.Name);
+        // Console.WriteLine("Next MAC:" + ConvertionManager.MACtoString(nextHopMAC));
     }
 
-    
+
     
     public virtual void SendFrame(EthernetFrame ethernetFrame, Network network)
     {
-        if (this.ConnectedNetwork.Contains(network))
+        
+        if (IsBroadcast(ethernetFrame.DestinationMAC)) //Broadcast - do wszystkich 
         {
-            if (IsBroadcast(ethernetFrame.DestinationMAC)) //Broadcast - do wszystkich 
-            {
-                network.Broadcast(this, ethernetFrame);
-            }
-            else //Unicast - do konkretnego MAC
-            {
-                network.Unicast(ethernetFrame);
-            }
+            network.Broadcast(this, ethernetFrame);
         }
-        else
+        else //Unicast - do konkretnego MAC
         {
-            throw new Exception("Nie podłączono do sieci");
+            network.Unicast(ethernetFrame);
         }
     }
 
@@ -123,7 +148,7 @@ public class Router : Device
             Console.WriteLine(BitConverter.ToString(arpRequest.SenderMACAdress).Replace("-", ":"));
 
             //wyślij zapakowana w ramke Ethernet
-            SendFrame(new EthernetFrame(arpRequest.SenderMACAdress, targetMAC, NetworkConstants.ETHERTYPE_ARP, arpReplyBytes), ConnectedNetwork[0]);
+            SendFrame(new EthernetFrame(arpRequest.SenderMACAdress, targetMAC, NetworkConstants.ETHERTYPE_ARP, arpReplyBytes), networkInterface.ConnectedNetwork);
         }
 
         //Nasza odpowiedź na to co Host/Router przesyła

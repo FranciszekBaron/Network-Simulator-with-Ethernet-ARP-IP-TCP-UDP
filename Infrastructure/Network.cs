@@ -20,7 +20,7 @@ public class Network
             ConnectedDevices = new List<(Device,NetworkInterface)>();
         }
         ConnectedDevices.Add((device,iface));
-        device.ConnectedNetwork.Add(this);
+        iface.ConnectedNetwork = this;
     }
 
 

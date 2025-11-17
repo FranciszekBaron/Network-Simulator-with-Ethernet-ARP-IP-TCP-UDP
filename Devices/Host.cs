@@ -11,7 +11,6 @@ public class Host : Device
     public Host(string name,byte[] MacAdress, byte[] IpAdress,byte[] mask) : base(name)
     {
         Interface = new NetworkInterface("eth0", IpAdress, MacAdress, mask);
-        ConnectedNetwork = new List<Network>();
     }
     
     public virtual void SendPacket(byte[] IPAdrress,byte[] data)
@@ -38,7 +37,7 @@ public class Host : Device
         {
             //Nie ma IP <-> MAC w ARP? Zrób ARP Request
             LoggingManager.PrintNormal($"Wykonuje ARP Request do ... {ConvertionManager.IPtoString(nextHop)}");
-            SendArpRequest(nextHop);
+            SendArpRequest(nextHop,Interface);
 
             nextHopMAC = Interface.arpCache[nextHopToString];
         }
@@ -61,18 +60,9 @@ public class Host : Device
         LoggingManager.PrintNormal($"[{Name}] Created Ethernet Frame: {ConvertionManager.MACtoString(ethernetFrame.SourceMAC)} → {ConvertionManager.MACtoString(ethernetFrame.DestinationMAC)}");
 
         LoggingManager.PrintNormal("Sending packet...");
-        SendFrame(ethernetFrame, ConnectedNetwork[0]);
+        SendFrame(ethernetFrame, Interface);
     }
     
-    public void SendArpRequest(byte[] targetIP)
-    {
-        AdressResolutionProtocol arp = new AdressResolutionProtocol(1, Interface.MacAdress, Interface.IpAdress, [0, 0, 0, 0, 0, 0], targetIP);
-        byte[] arpBytes = AdressResolutionProtocol.Serialize(arp);
-        EthernetFrame sendedEthernetFrame = new EthernetFrame([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], Interface.MacAdress, 0x806, arpBytes);
-
-        SendFrame(sendedEthernetFrame, ConnectedNetwork[0]);
-    }
-
 
     protected override void HandleARP(byte[] payload,NetworkInterface incomingInterface)
     {
@@ -103,7 +93,7 @@ public class Host : Device
             Console.WriteLine(BitConverter.ToString(arpRequest.SenderMACAdress).Replace("-", ":"));
 
             //wyślij zapakowana w ramke Ethernet
-            SendFrame(new EthernetFrame(arpRequest.SenderMACAdress, targetMAC, NetworkConstants.ETHERTYPE_ARP, arpReplyBytes), ConnectedNetwork[0]);
+            SendFrame(new EthernetFrame(arpRequest.SenderMACAdress, targetMAC, NetworkConstants.ETHERTYPE_ARP, arpReplyBytes), Interface);
         }
 
         //Nasza odpowiedź na to co Host/Router przesyła

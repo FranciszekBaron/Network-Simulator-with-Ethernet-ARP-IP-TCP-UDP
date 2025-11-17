@@ -9,8 +9,8 @@ public class NetworkInterface
     public bool IsUp { get; set; } = true;
     public string State => IsUp ? "UP" : "DOWN";
 
-    public Dictionary<string,byte[]> arpCache { get; set; }
-
+    public Dictionary<string, byte[]> arpCache { get; set; }
+    public Network ConnectedNetwork { get; set; }
     public NetworkInterface(string name, byte[] ipAdress, byte[] macAdress, byte[] mask)
     {
         this.Name = name;
@@ -18,6 +18,7 @@ public class NetworkInterface
         this.MacAdress = macAdress;
         this.Mask = mask;
         arpCache = new Dictionary<string, byte[]>();
+
     }
 
     public override string ToString()
