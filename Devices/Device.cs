@@ -5,7 +5,6 @@ public abstract class Device
     public string Name { get; set; }
 
     // KERNEL SPACE
-    // public List<Network> ConnectedNetwork { get; set; }
     public RoutingTable RoutingTable { get; set; }
     
     public Device(string name)
@@ -23,9 +22,23 @@ public abstract class Device
         {
             throw new Exception($"Interface {outgoingInterface.Name} not connected to any network");
         }
-        AdressResolutionProtocol arp = new AdressResolutionProtocol(1, outgoingInterface.MacAdress, outgoingInterface.IpAdress, [0, 0, 0, 0, 0, 0], targetIP);
+
+        AdressResolutionProtocol arp = new AdressResolutionProtocol(
+            opcode: 1,
+            sendeMacAdress: outgoingInterface.MacAdress,
+            senderIPAdress: outgoingInterface.IpAdress,
+            targetMacAdress: [0, 0, 0, 0, 0, 0],
+            targetIPAdress: targetIP
+        );
+
         byte[] arpBytes = AdressResolutionProtocol.Serialize(arp);
-        EthernetFrame sendedEthernetFrame = new EthernetFrame([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], outgoingInterface.MacAdress, 0x806, arpBytes);
+
+        EthernetFrame sendedEthernetFrame = new EthernetFrame(
+            destinationMAC: [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF],
+            sourceMAC: outgoingInterface.MacAdress,
+            etherType: 0x806,
+            payload: arpBytes
+        );
 
 
         SendFrame(sendedEthernetFrame, outgoingInterface);
@@ -38,7 +51,8 @@ public abstract class Device
             throw new Exception($"Interface {outgoingInterface.Name} not connected to any network");
         }
 
-        Console.WriteLine("[SEND_FRAME] Na interface: " + outgoingInterface);
+        LoggingManager.PrintNormal("[SEND_FRAME] Na interface: " + outgoingInterface);
+
         if (IsBroadcast(ethernetFrame.DestinationMAC)) //Broadcast - do wszystkich 
         {
             outgoingInterface.ConnectedNetwork.Broadcast(this, ethernetFrame);
@@ -47,7 +61,6 @@ public abstract class Device
         {
             outgoingInterface.ConnectedNetwork.Unicast(ethernetFrame);
         }
-        
         
     }
 

@@ -7,22 +7,22 @@ public class Route
 
     private string From { get; set; }
 
-    public Route(byte[] Destination, byte[] Netmask, byte[] Gateaway, NetworkInterface Interface, string From)
+    public Route(byte[] destination, byte[] netmask, byte[] gateaway, NetworkInterface @interface, string from)
     {
-        this.Destination = Destination ?? new byte[] { 0, 0, 0, 0 };
-        this.Netmask = Netmask ?? new byte[] { 0, 0, 0, 0 };
-        this.Gateaway = Gateaway ?? new byte[] { 0, 0, 0, 0 };
-        this.Interface = Interface ?? throw new ArgumentNullException(nameof(Interface));
-        this.From = From;
+        Destination = destination ?? new byte[] { 0, 0, 0, 0 };
+        Netmask = netmask ?? new byte[] { 0, 0, 0, 0 };
+        Gateaway = gateaway ?? new byte[] { 0, 0, 0, 0 };
+        Interface = @interface ?? throw new ArgumentNullException(nameof(Interface));
+        From = from;
     }
     
-    public Route(byte[] Destination, byte[] Netmask, byte[] Gateaway, NetworkInterface Interface)
+    public Route(byte[] destination, byte[] netmask, byte[] gateaway, NetworkInterface @interface)
     {
-        this.Destination = Destination ?? new byte[] { 0, 0, 0, 0 };
-        this.Netmask = Netmask ?? new byte[] { 0, 0, 0, 0 };
-        this.Gateaway = Gateaway ?? new byte[] { 0, 0, 0, 0 };
-        this.Interface = Interface ?? throw new ArgumentNullException(nameof(Interface));
-        this.From = "User";
+        Destination = destination ?? new byte[] { 0, 0, 0, 0 };
+        Netmask = netmask ?? new byte[] { 0, 0, 0, 0 };
+        Gateaway = gateaway ?? new byte[] { 0, 0, 0, 0 };
+        Interface = @interface ?? throw new ArgumentNullException(nameof(Interface));
+        From = "User";
     }
 
 

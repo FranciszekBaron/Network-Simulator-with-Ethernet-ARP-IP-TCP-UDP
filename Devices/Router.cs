@@ -2,30 +2,40 @@ using System.Net;
 
 public class Router : Device
 {
-    
-
-    // public Dictionary<string, string> FIB;
-
     public List<NetworkInterface> Interfaces { get; set; }
-
-    public Dictionary<string,byte[]> arpCache { get; set; }
 
     public Router(string Name) : base(Name)
     {
         Interfaces = new List<NetworkInterface>();
     }
-    
 
     public NetworkInterface AddInterface(string name,byte[] IpAdress,byte[] MacAdress,byte[] mask)
     {
-        var iface = new NetworkInterface(name, IpAdress, MacAdress, mask);
+        var iface = new NetworkInterface(
+            name: name,
+            ipAdress: IpAdress,
+            macAdress: MacAdress,
+            mask: mask
+        );
+
         Interfaces.Add(iface);
 
-        byte[] network = CalculateNetwork(IpAdress, mask);
-        RoutingTable.AddRoute(new Route(network, mask, null, iface,"Auto (Add-Interface)"));
+        byte[] network = CalculateNetwork(
+            ipAdress: IpAdress,
+            mask: mask
+        );
+
+        RoutingTable.AddRoute(
+            new Route(
+                destination: network,
+                netmask: mask,
+                gateaway: null,
+                @interface: iface,
+                from: "Auto (Add-Interface)"
+            )
+        );
         return iface;
     }
-
 
     //Na kazdym Hopie zmienia się SourceMAC,DestMAC oraz TTL
     protected override void HandleIP(byte[] payload, NetworkInterface networkInterface)
@@ -35,7 +45,7 @@ public class Router : Device
 
         //Packet dla mnie -- odpowiedz i zakończ
         string targetIP = ConvertionManager.IPtoString(packet.DestinationIP);
-        NetworkInterface incomingInterface = Interfaces
+        NetworkInterface? incomingInterface = Interfaces
             .FirstOrDefault(e => ConvertionManager.IPtoString(e.IpAdress) == targetIP
         );
 
@@ -55,7 +65,7 @@ public class Router : Device
 
 
         // Sprawdź następny Hop
-        LoggingManager.PrintNormal($"========= {this.Name} Routing Table =========");
+        LoggingManager.PrintNormal($"========= {Name} Routing Table =========");
         LoggingManager.PrintNormal(RoutingTable.ToString());
         LoggingManager.PrintNormal("========================================");
         byte[] nextHop = RoutingTable.GetNextHop(packet.DestinationIP);
@@ -67,8 +77,7 @@ public class Router : Device
         }
         
         
-
-        Route route = RoutingTable.routes
+        Route? route = RoutingTable.routes
             .FirstOrDefault(e => ConvertionManager.IPtoString(e.Gateaway) == ConvertionManager.IPtoString(nextHop) ||
             ConvertionManager.IPtoString(e.Destination) == ConvertionManager.IPtoString(CalculateNetwork(nextHop,e.Netmask)));
 
@@ -79,7 +88,7 @@ public class Router : Device
         }
 
         //Sprawdz outgoing interface , który ma być uzyty
-        NetworkInterface outgoingInterface = Interfaces.FirstOrDefault(e => e.Name == route.Interface.Name);
+        NetworkInterface? outgoingInterface = Interfaces.FirstOrDefault(e => e.Name == route.Interface.Name);
 
         if(outgoingInterface == null)
         {
@@ -90,9 +99,9 @@ public class Router : Device
         //Arp lookup na nastepny MAC
         byte[] nextHopMAC;
         string nextHopToString = ConvertionManager.IPtoString(nextHop);
-        if (outgoingInterface.arpCache.ContainsKey(nextHopToString))
+        if (outgoingInterface.ArpCache.ContainsKey(nextHopToString))
         {
-            nextHopMAC = outgoingInterface.arpCache[ConvertionManager.IPtoString(nextHop)];
+            nextHopMAC = outgoingInterface.ArpCache[ConvertionManager.IPtoString(nextHop)];
             LoggingManager.PrintNormal($"[{Name}] MAC from ARP CACHE is:" + ConvertionManager.MACtoString(nextHopMAC));
         }
         else
@@ -100,9 +109,9 @@ public class Router : Device
             //Nie ma IP <-> MAC w ARP? Zrób ARP Request
             LoggingManager.PrintNormal($"Wykonuje ARP Request do ... {ConvertionManager.IPtoString(nextHop)}");
             SendArpRequest(nextHop, outgoingInterface);
-            if (!outgoingInterface.arpCache.ContainsKey(nextHopToString))
+            if (!outgoingInterface.ArpCache.ContainsKey(nextHopToString))
                 throw new Exception("Could not Broadcast or Find next MAC");
-            nextHopMAC = outgoingInterface.arpCache[nextHopToString];
+            nextHopMAC = outgoingInterface.ArpCache[nextHopToString];
         }
 
         //Nowa ramka Ethernet ze zmienionymi src i dst , ta sama ramka IPpacket
@@ -126,9 +135,7 @@ public class Router : Device
         string targetIP = ConvertionManager.IPtoString(arpRequest.TargetIPAdress);
         string thisIP = ConvertionManager.IPtoString(networkInterface.IpAdress);
 
-
-
-        byte[] targetMAC = null;
+        byte[]? targetMAC = null;
 
         Console.WriteLine(ConvertionManager.IPtoString(networkInterface.IpAdress));
 
@@ -180,10 +187,10 @@ public class Router : Device
             return;
         }
 
-        networkInterface.arpCache.Add(ConvertionManager.IPtoString(IpAdress), MacAdress);
+        networkInterface.ArpCache.Add(ConvertionManager.IPtoString(IpAdress), MacAdress);
 
         //Print dodanej pary IP <-> MAC
-        foreach (var pair in networkInterface.arpCache)
+        foreach (var pair in networkInterface.ArpCache)
         {
             if (pair.Key == ConvertionManager.IPtoString(IpAdress))
             {

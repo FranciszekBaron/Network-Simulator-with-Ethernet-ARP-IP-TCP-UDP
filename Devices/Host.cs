@@ -5,7 +5,6 @@ using System.Security.Cryptography.X509Certificates;
 
 public class Host : Device
 {   
-    
     public NetworkInterface Interface { get; set; } // Host ma jeden MAC i IP 
 
     public Host(string name,byte[] MacAdress, byte[] IpAdress,byte[] mask) : base(name)
@@ -28,9 +27,9 @@ public class Host : Device
 
         LoggingManager.PrintDevice($"HEJ to [{ConvertionManager.IPtoString(Interface.IpAdress)}] i moj MacAdress to: {ConvertionManager.MACtoString(Interface.MacAdress)}");
 
-        if (Interface.arpCache.ContainsKey(nextHopToString))
+        if (Interface.ArpCache.ContainsKey(nextHopToString))
         {
-            nextHopMAC = Interface.arpCache[ConvertionManager.IPtoString(nextHop)];
+            nextHopMAC = Interface.ArpCache[ConvertionManager.IPtoString(nextHop)];
             LoggingManager.PrintNormal($"[{Name}] MAC from ARP CACHE is:" + ConvertionManager.MACtoString(nextHopMAC));
         }
         else
@@ -39,7 +38,7 @@ public class Host : Device
             LoggingManager.PrintNormal($"Wykonuje ARP Request do ... {ConvertionManager.IPtoString(nextHop)}");
             SendArpRequest(nextHop,Interface);
 
-            nextHopMAC = Interface.arpCache[nextHopToString];
+            nextHopMAC = Interface.ArpCache[nextHopToString];
         }
 
         IPPacket ipPacket = new IPPacket(
@@ -72,13 +71,9 @@ public class Host : Device
 
         string targetIP = ConvertionManager.IPtoString(arpRequest.TargetIPAdress);
         string thisIP = ConvertionManager.IPtoString(Interface.IpAdress);
-
-
-
-        byte[] targetMAC = null;
+        byte[]? targetMAC = null;
 
         Console.WriteLine(ConvertionManager.IPtoString(Interface.IpAdress));
-
 
         //Znalezienie Hosta/Routera do którego wysyłamy
         if (targetIP == thisIP && arpRequest.Opcode == NetworkConstants.ARP_REQUEST)
@@ -88,10 +83,15 @@ public class Host : Device
 
             //tworzenie nowej ramki ArpReply
             targetMAC = Interface.MacAdress;
-            AdressResolutionProtocol arpReply = new AdressResolutionProtocol(2, targetMAC, Interface.IpAdress, arpRequest.SenderMACAdress, arpRequest.SenderIPAdress);
-            byte[] arpReplyBytes = AdressResolutionProtocol.Serialize(arpReply);
-            Console.WriteLine(BitConverter.ToString(arpRequest.SenderMACAdress).Replace("-", ":"));
+            AdressResolutionProtocol arpReply = new AdressResolutionProtocol(
+                opcode: 2,
+                sendeMacAdress: targetMAC,
+                senderIPAdress: Interface.IpAdress,
+                targetMacAdress: arpRequest.SenderMACAdress,
+                targetIPAdress: arpRequest.SenderIPAdress
+            );
 
+            byte[] arpReplyBytes = AdressResolutionProtocol.Serialize(arpReply);
             //wyślij zapakowana w ramke Ethernet
             SendFrame(new EthernetFrame(arpRequest.SenderMACAdress, targetMAC, NetworkConstants.ETHERTYPE_ARP, arpReplyBytes), Interface);
         }
@@ -115,7 +115,6 @@ public class Host : Device
 
     protected override void HandleIP(byte[] payload, NetworkInterface incomingInterface)
     {
-
         IPPacket packet = IPPacket.Deserialize(payload);
 
         LoggingManager.PrintPositive($"Jestem router {ConvertionManager.MACtoString(Interface.MacAdress)} i mam IP: {ConvertionManager.IPtoString(Interface.IpAdress)} , dostałem ramkę IPv4");
@@ -124,7 +123,6 @@ public class Host : Device
         {
             Console.Write(packet.Payload[i] + ",");
         }
-        
     }
 
 
@@ -142,10 +140,10 @@ public class Host : Device
             return;
         }
         
-        Interface.arpCache.Add(ConvertionManager.IPtoString(IpAdress), MacAdress);
+        Interface.ArpCache.Add(ConvertionManager.IPtoString(IpAdress), MacAdress);
         LoggingManager.PrintNormal($"{Interface}");
         //Print dodanej pary IP <-> MAC
-        foreach (var pair in Interface.arpCache)
+        foreach (var pair in Interface.ArpCache)
         {
             if (pair.Key == ConvertionManager.IPtoString(IpAdress))
             {
