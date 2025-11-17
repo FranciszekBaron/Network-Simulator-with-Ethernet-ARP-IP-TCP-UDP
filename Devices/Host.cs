@@ -134,7 +134,7 @@ public class Host : Device
         }
         
         Interface.arpCache.Add(ConvertionManager.IPtoString(IpAdress), MacAdress);
-
+        LoggingManager.PrintNormal($"{Interface}");
         //Print dodanej pary IP <-> MAC
         foreach (var pair in Interface.arpCache)
         {

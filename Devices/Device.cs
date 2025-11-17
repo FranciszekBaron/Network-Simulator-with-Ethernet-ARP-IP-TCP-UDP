@@ -27,6 +27,7 @@ public abstract class Device
         byte[] arpBytes = AdressResolutionProtocol.Serialize(arp);
         EthernetFrame sendedEthernetFrame = new EthernetFrame([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF], outgoingInterface.MacAdress, 0x806, arpBytes);
 
+
         SendFrame(sendedEthernetFrame, outgoingInterface);
     }
 
@@ -36,6 +37,8 @@ public abstract class Device
         {
             throw new Exception($"Interface {outgoingInterface.Name} not connected to any network");
         }
+
+       
         if (IsBroadcast(ethernetFrame.DestinationMAC)) //Broadcast - do wszystkich 
         {
             outgoingInterface.ConnectedNetwork.Broadcast(this, ethernetFrame);

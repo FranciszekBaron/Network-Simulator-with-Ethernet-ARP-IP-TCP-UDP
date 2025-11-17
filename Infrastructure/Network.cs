@@ -31,6 +31,10 @@ public class Network
 
         string senderMAC = ConvertionManager.MACtoString(ethernetFrame.SourceMAC);
 
+        Console.WriteLine("Na siec: " + this.Name);
+
+        Console.WriteLine(string.Join("\n", ConnectedDevices));
+
         foreach (var (device,iface) in ConnectedDevices)
         {
             string ifaceMAC = ConvertionManager.MACtoString(iface.MacAdress);

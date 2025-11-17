@@ -101,7 +101,7 @@ public class Program
         router1.RoutingTable.AddRoute(new Route([200, 2,0, 0], [255, 255, 0, 0], null, router1_eth1));
         router1.RoutingTable.SetDefaultGateway(router2_eth0.IpAdress, outgoingInterface: router1_eth1);
 
-        // WAN1.ConnectDevice(router2,router2.Interfaces[0]);
+        WAN1.ConnectDevice(router2,router2_eth0);
 
 
         // WAN2.ConnectDevice(router2,router2.Interfaces[0]);
@@ -112,7 +112,7 @@ public class Program
 
         // WAN4.ConnectDevice(router4,router4.Interfaces[0]);
         // WAN4.ConnectDevice(target,target.Interface);
-
+       
         me.SendPacket(target.Interface.IpAdress,[255]);
 
 

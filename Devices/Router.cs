@@ -54,7 +54,6 @@ public class Router : Device
         packet.TTL--;
 
 
-
         // Sprawdź następny Hop
         LoggingManager.PrintNormal("========= HOST A Routing Table =========");
         LoggingManager.PrintNormal(RoutingTable.ToString());
@@ -84,25 +83,24 @@ public class Router : Device
             return;
         }
 
-        // //Arp lookup na nastepny MAC
-        // byte[] nextHopMAC;
-        // string nextHopToString = ConvertionManager.IPtoString(nextHop);
-        // if (outgoingInterface.arpCache.ContainsKey(nextHopToString))
-        // {
-        //     nextHopMAC = outgoingInterface.arpCache[ConvertionManager.IPtoString(nextHop)];
-        //     LoggingManager.PrintNormal($"[{Name}] MAC from ARP CACHE is:" + ConvertionManager.MACtoString(nextHopMAC));
-        // }
-        // else
-        // {
-        //     //Nie ma IP <-> MAC w ARP? Zrób ARP Request
-        //     LoggingManager.PrintNormal($"Wykonuje ARP Request do ... {ConvertionManager.IPtoString(nextHop)}");
-        //     SendArpRequest(nextHop, outgoingInterface);
-        //     nextHopMAC = outgoingInterface.arpCache[nextHopToString];
-        // }
+        //Arp lookup na nastepny MAC
+        byte[] nextHopMAC;
+        string nextHopToString = ConvertionManager.IPtoString(nextHop);
+        if (outgoingInterface.arpCache.ContainsKey(nextHopToString))
+        {
+            nextHopMAC = outgoingInterface.arpCache[ConvertionManager.IPtoString(nextHop)];
+            LoggingManager.PrintNormal($"[{Name}] MAC from ARP CACHE is:" + ConvertionManager.MACtoString(nextHopMAC));
+        }
+        else
+        {
+            //Nie ma IP <-> MAC w ARP? Zrób ARP Request
+            LoggingManager.PrintNormal($"Wykonuje ARP Request do ... {ConvertionManager.IPtoString(nextHop)}");
+            SendArpRequest(nextHop, outgoingInterface);
+            if (!outgoingInterface.arpCache.ContainsKey(nextHopToString))
+                throw new Exception("Could not Broadcast or Find next MAC");
+            nextHopMAC = outgoingInterface.arpCache[nextHopToString];
+        }
 
-
-        Console.WriteLine(ConvertionManager.IPtoString(nextHop) + " via: " + outgoingInterface.Name);
-        // Console.WriteLine("Next MAC:" + ConvertionManager.MACtoString(nextHopMAC));
     }
 
 
@@ -160,15 +158,15 @@ public class Router : Device
             AdressResolutionProtocol arpReply = AdressResolutionProtocol.Deserialize(payload);
             targetMAC = arpReply.SenderMACAdress;
 
-            SaveToArpCache(arpReply.SenderIPAdress, targetMAC);
+            SaveToArpCache(arpReply.SenderIPAdress, targetMAC,networkInterface);
         }
         else
         {
             LoggingManager.PrintNormal($"[{Name}] answers: {ConvertionManager.IPtoString(arpRequest.TargetIPAdress)} is not mine");
         }
     }
-    
-    public void SaveToArpCache(byte[] IpAdress, byte[] MacAdress)
+
+    public void SaveToArpCache(byte[] IpAdress, byte[] MacAdress,NetworkInterface networkInterface)
     {
         if (IpAdress.Length != NetworkConstants.IP_ADRESS_LENGHT)
         {
@@ -181,17 +179,22 @@ public class Router : Device
             LoggingManager.PrintPositive($"Adres MAC: {MacAdress} ma niepoprwną długość");
             return;
         }
-        
 
-        arpCache.Add(ConvertionManager.IPtoString(IpAdress), MacAdress);
+        networkInterface.arpCache.Add(ConvertionManager.IPtoString(IpAdress), MacAdress);
 
         //Print dodanej pary IP <-> MAC
-        foreach (var pair in arpCache)
+        foreach (var pair in networkInterface.arpCache)
         {
             if (pair.Key == ConvertionManager.IPtoString(IpAdress))
             {
                 LoggingManager.PrintPositive($"Zapisuje w ARP CACHE  IP: {pair.Key} -> MAC: {BitConverter.ToString(pair.Value).Replace("-", ":")}");
             }
         }
+    }
+
+
+    public override string ToString()
+    {
+        return Name;
     }
 }

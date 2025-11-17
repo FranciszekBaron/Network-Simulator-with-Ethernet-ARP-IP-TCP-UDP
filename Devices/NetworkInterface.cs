@@ -18,7 +18,6 @@ public class NetworkInterface
         this.MacAdress = macAdress;
         this.Mask = mask;
         arpCache = new Dictionary<string, byte[]>();
-
     }
 
     public override string ToString()
