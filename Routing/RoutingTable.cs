@@ -1,16 +1,12 @@
 public class RoutingTable
 {
     public List<Route> routes = new List<Route>();
-    public RoutingTable()
-    {
-        
-    }
+    public RoutingTable(){ }
     
     public void SetDefaultGateway(byte[] gateaway,NetworkInterface outgoingInterface)
     {
         routes.Add(new Route([0, 0, 0, 0], [0, 0, 0, 0], gateaway, outgoingInterface,"SetDefaultGateaway"));
     }
-
 
     public byte[] GetNextHop(byte[] IPAdrress)
     {
@@ -31,6 +27,7 @@ public class RoutingTable
                 }
             }
         }
+
         LoggingManager.PrintNormal("Best route: " + bestMatch);
         if (bestMatch == null)
         {
