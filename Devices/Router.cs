@@ -35,8 +35,8 @@ public class Router : Device
 
         //Packet dla mnie -- odpowiedz i zakończ
         string targetIP = ConvertionManager.IPtoString(packet.DestinationIP);
-        NetworkInterface incomingInterface = Interfaces.FirstOrDefault(
-            e => ConvertionManager.IPtoString(e.IpAdress) == targetIP
+        NetworkInterface incomingInterface = Interfaces
+            .FirstOrDefault(e => ConvertionManager.IPtoString(e.IpAdress) == targetIP
         );
 
         if (incomingInterface != null)
@@ -55,7 +55,7 @@ public class Router : Device
 
 
         // Sprawdź następny Hop
-        LoggingManager.PrintNormal("========= HOST A Routing Table =========");
+        LoggingManager.PrintNormal($"========= {this.Name} Routing Table =========");
         LoggingManager.PrintNormal(RoutingTable.ToString());
         LoggingManager.PrintNormal("========================================");
         byte[] nextHop = RoutingTable.GetNextHop(packet.DestinationIP);
@@ -66,7 +66,11 @@ public class Router : Device
             return;
         }
         
-        Route route = RoutingTable.routes.FirstOrDefault(e => e.Gateaway == nextHop || e.Destination == nextHop);
+        
+
+        Route route = RoutingTable.routes
+            .FirstOrDefault(e => ConvertionManager.IPtoString(e.Gateaway) == ConvertionManager.IPtoString(nextHop) ||
+            ConvertionManager.IPtoString(e.Destination) == ConvertionManager.IPtoString(CalculateNetwork(nextHop,e.Netmask)));
 
         if (route == null)
         {
@@ -101,21 +105,17 @@ public class Router : Device
             nextHopMAC = outgoingInterface.arpCache[nextHopToString];
         }
 
-    }
+        //Nowa ramka Ethernet ze zmienionymi src i dst , ta sama ramka IPpacket
+        EthernetFrame ethernetFrame = new EthernetFrame(
+            destinationMAC: nextHopMAC,
+            sourceMAC: outgoingInterface.MacAdress,
+            etherType: 0x800,
+            payload: payload
+        );
 
 
-    
-    public virtual void SendFrame(EthernetFrame ethernetFrame, Network network)
-    {
-        
-        if (IsBroadcast(ethernetFrame.DestinationMAC)) //Broadcast - do wszystkich 
-        {
-            network.Broadcast(this, ethernetFrame);
-        }
-        else //Unicast - do konkretnego MAC
-        {
-            network.Unicast(ethernetFrame);
-        }
+        SendFrame(ethernetFrame, outgoingInterface);
+
     }
 
     protected override void HandleARP(byte[] payload, NetworkInterface networkInterface)
@@ -146,7 +146,7 @@ public class Router : Device
             Console.WriteLine(BitConverter.ToString(arpRequest.SenderMACAdress).Replace("-", ":"));
 
             //wyślij zapakowana w ramke Ethernet
-            SendFrame(new EthernetFrame(arpRequest.SenderMACAdress, targetMAC, NetworkConstants.ETHERTYPE_ARP, arpReplyBytes), networkInterface.ConnectedNetwork);
+            SendFrame(new EthernetFrame(arpRequest.SenderMACAdress, targetMAC, NetworkConstants.ETHERTYPE_ARP, arpReplyBytes), networkInterface);
         }
 
         //Nasza odpowiedź na to co Host/Router przesyła

@@ -115,7 +115,16 @@ public class Host : Device
 
     protected override void HandleIP(byte[] payload, NetworkInterface incomingInterface)
     {
-        Console.WriteLine($"Jestem router {ConvertionManager.MACtoString(Interface.MacAdress)} i mam IP: {ConvertionManager.IPtoString(Interface.IpAdress)} , dostałem ramkę IPv4");
+
+        IPPacket packet = IPPacket.Deserialize(payload);
+
+        LoggingManager.PrintPositive($"Jestem router {ConvertionManager.MACtoString(Interface.MacAdress)} i mam IP: {ConvertionManager.IPtoString(Interface.IpAdress)} , dostałem ramkę IPv4");
+        LoggingManager.PrintNormal("Data:");
+        for (int i = 0; i < packet.Payload.Length; i++)
+        {
+            Console.Write(packet.Payload[i] + ",");
+        }
+        
     }
 
 

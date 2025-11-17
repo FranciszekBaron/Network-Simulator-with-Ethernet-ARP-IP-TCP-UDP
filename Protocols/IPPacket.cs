@@ -208,9 +208,7 @@ public class IPPacket : IProtocol<IPPacket>
 
 
 
-        Console.WriteLine(payload.Length);
         Array.Copy(bytes, offset, payload, 0, payload.Length);
-
 
 
         deserialized.Version = version;

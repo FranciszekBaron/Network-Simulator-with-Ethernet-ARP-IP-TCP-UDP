@@ -38,7 +38,7 @@ public abstract class Device
             throw new Exception($"Interface {outgoingInterface.Name} not connected to any network");
         }
 
-       
+        Console.WriteLine("[SEND_FRAME] Na interface: " + outgoingInterface);
         if (IsBroadcast(ethernetFrame.DestinationMAC)) //Broadcast - do wszystkich 
         {
             outgoingInterface.ConnectedNetwork.Broadcast(this, ethernetFrame);
